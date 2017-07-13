@@ -1,0 +1,14 @@
+#build
+[Oo]bj/
+[Bb]in/
+packages/
+
+#vim
+*~
+*.swp
+*.swo
+
+#VS
+*.user
+.vs
+
