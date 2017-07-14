@@ -42,7 +42,14 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Batcher2D.cs" />
+    <Compile Include="Camera.cs" />
     <Compile Include="Game1.cs" />
+    <Compile Include="Input.cs" />
+    <Compile Include="LineSegment.cs" />
+    <Compile Include="MatrixChain.cs" />
+    <Compile Include="Mountain.cs" />
+    <Compile Include="Tommy.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
