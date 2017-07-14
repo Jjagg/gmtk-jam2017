@@ -14,7 +14,8 @@ namespace gmtk_jam
         private Camera _camera;
         private Tommy _tommy;
         private Mountain _mountain;
-        
+        private HudBar _oxygenBar;
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -32,6 +33,10 @@ namespace gmtk_jam
             _tommy.Position = new Vector2(100f);
 
             _mountain = new Mountain(_camera);
+            var barSize = new Vector2(40f, 100f);
+            var oxygenBarPos = new Vector2(GraphicsDevice.Viewport.Width - barSize.X * 2f, barSize.X);
+            _oxygenBar = new HudBar(oxygenBarPos, barSize);
+            _oxygenBar.FillColor = Color.Lime;
 
             base.Initialize();
         }
@@ -62,6 +67,9 @@ namespace gmtk_jam
 
             _tommy.Draw(_batcher);
             _mountain.Draw(_batcher);
+            _oxygenBar.Draw(_batcher);
+
+            _batcher.Flush();
 
             base.Draw(gameTime);
         }

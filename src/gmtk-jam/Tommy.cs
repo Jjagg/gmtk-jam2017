@@ -35,7 +35,6 @@ namespace gmtk_jam
         public void Draw(Batcher2D batcher)
         {
             batcher.FillRect(Bounding, Color.MonoGameOrange);
-            batcher.Flush();
         }
     }
 }

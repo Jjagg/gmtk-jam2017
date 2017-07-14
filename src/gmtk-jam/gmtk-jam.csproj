@@ -49,6 +49,7 @@
     <Compile Include="LineSegment.cs" />
     <Compile Include="MatrixChain.cs" />
     <Compile Include="Mountain.cs" />
+    <Compile Include="HudBar.cs" />
     <Compile Include="Tommy.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
