@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using GameSandbox;
 using Microsoft.Xna.Framework;
@@ -15,7 +14,7 @@ namespace gmtk_jam
         public static extern IntPtr GetProcAddress(string proc);
 
         private delegate void SetLineWidthDelegate(float width);
-        private SetLineWidthDelegate SetLineWidth;
+        private readonly SetLineWidthDelegate SetLineWidth;
 
         private class DrawInfo
         {
