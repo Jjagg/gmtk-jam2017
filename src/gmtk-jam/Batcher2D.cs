@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using GameSandbox;
+using gmtk_jam.Extended;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -221,6 +221,35 @@ namespace gmtk_jam
         }
 
         #endregion
+
+        public void DrawCircle(Vector2 center, float radius, Color color, int sides, int lineWidth = 1)
+        {
+            var ps = Util.CreateCircle(center, radius, sides);
+            DrawLines(ps, color, lineWidth);
+        }
+
+        public void FillCircle(Vector2 center, float radius, Color color, int sides)
+        {
+            var di = new DrawInfo(BasicEffect, PrimitiveType.TriangleList, _blankTexture, null, 0);
+            CheckFlush(di);
+
+            var ps = Util.CreateCircle(center, radius, sides);
+
+            var v0 = AddVertex(ps[0], color);
+            var v1 = v0;
+            var vCenter = AddVertex(center, color);
+            foreach (var p in ps)
+            {
+                var v2 = AddVertex(p, color);
+                AddIndex(v1);
+                AddIndex(v2);
+                AddIndex(vCenter);
+                v1 = v2;
+            }
+            AddIndex(v1);
+            AddIndex(v0);
+            AddIndex(vCenter);
+        }
 
         public void Flush()
         {

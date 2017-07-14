@@ -45,9 +45,9 @@
     <Compile Include="BasicCamera.cs" />
     <Compile Include="Batcher2D.cs" />
     <Compile Include="Camera.cs" />
+    <Compile Include="Extended\Util.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Input.cs" />
-    <Compile Include="LineSegment.cs" />
     <Compile Include="MatrixChain.cs" />
     <Compile Include="Mountain.cs" />
     <Compile Include="HudBar.cs" />
