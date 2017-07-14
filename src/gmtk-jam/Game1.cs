@@ -1,4 +1,4 @@
-﻿using GameSandbox;
+﻿using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -70,6 +70,13 @@ namespace gmtk_jam
             _oxygenBar.Draw(_batcher);
 
             _batcher.Flush();
+
+            var pts = _tommy.Points().ToList();
+
+            _batcher.DrawLine(pts[0], pts[1], Color.AliceBlue, 2);
+            _batcher.DrawLine(pts[1], pts[2], Color.AliceBlue, 2);
+            _batcher.DrawLine(pts[2], pts[3], Color.AliceBlue, 2);
+            _batcher.DrawLine(pts[3], pts[0], Color.AliceBlue, 2);
 
             base.Draw(gameTime);
         }

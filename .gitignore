@@ -8,6 +8,9 @@ packages/
 *.swp
 *.swo
 
+#rider
+.idea
+
 #VS
 *.user
 .vs
