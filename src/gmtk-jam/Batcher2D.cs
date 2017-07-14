@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using GameSandbox;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameSandbox
+namespace gmtk_jam
 {
     public class Batcher2D
     {
-        [DllImport("opengl32.dll")]
-        private static extern void glLineWidth(float width);
+        [DllImport("SDL2.dll", CallingConvention = CallingConvention.Cdecl,
+                    EntryPoint = "SDL_GL_GetProcAddress", ExactSpelling = true)]
+        public static extern IntPtr GetProcAddress(string proc);
+
+        private delegate void SetLineWidthDelegate(float width);
+        private SetLineWidthDelegate SetLineWidth;
 
         private class DrawInfo
         {
@@ -123,6 +128,9 @@ namespace GameSandbox
             var viewport = gd.Viewport;
             var matrix2D = Matrix.CreateOrthographicOffCenter(0, viewport.Width, viewport.Height, 0, 0, 1);
             Matrices.Push(ref matrix2D);
+
+            // load glLineWidth
+            SetLineWidth = (SetLineWidthDelegate) Marshal.GetDelegateForFunctionPointer(GetProcAddress("glLineWidth"), typeof(SetLineWidthDelegate));
         }
 
         #region Line
@@ -227,7 +235,7 @@ namespace GameSandbox
                 if (b.DrawInfo.PrimitiveType == PrimitiveType.LineList && b.DrawInfo.LineWidth != _setLineWidth)
                 {
                     _setLineWidth = b.DrawInfo.LineWidth;
-                    glLineWidth(_setLineWidth);
+                    SetLineWidth(_setLineWidth);
                 }
 
                 foreach (var p in b.DrawInfo.Effect.CurrentTechnique.Passes)
