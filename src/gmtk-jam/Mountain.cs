@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using GameSandbox;
 using Microsoft.Xna.Framework;
 
 namespace gmtk_jam
@@ -40,7 +39,7 @@ namespace gmtk_jam
 
         private void FillPoints()
         {
-            while (_points[_points.Count - 1].X < _camera.Right)
+            while (_points[_points.Count - 1].X < _camera.Width)
                 AddPoint();
         }
 

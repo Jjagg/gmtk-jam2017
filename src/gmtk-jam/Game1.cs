@@ -1,6 +1,6 @@
-﻿using System.Linq;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using System;
+ using System.Linq;
+ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 namespace gmtk_jam
@@ -8,10 +8,9 @@ namespace gmtk_jam
     public class Game1 : Game
     {
         private GraphicsDeviceManager _graphics;
-        private SpriteBatch _spriteBatch;
         private Batcher2D _batcher;
 
-        private Camera _camera;
+        private BasicCamera _camera;
         private Tommy _tommy;
         private Mountain _mountain;
         private HudBar _oxygenBar;
@@ -27,14 +26,18 @@ namespace gmtk_jam
             var input = new Input(this);
             Components.Add(input);
 
-            _camera = new Camera(GraphicsDevice);
+            var width = GraphicsDevice.Viewport.Width;
+            var height = GraphicsDevice.Viewport.Height;
+
+            _camera = new BasicCamera(GraphicsDevice);
+            _camera.MoveTo(new Vector2(width / 2f, height / 2f));
 
             _tommy = new Tommy();
             _tommy.Position = new Vector2(100f);
 
             _mountain = new Mountain(_camera);
             var barSize = new Vector2(40f, 100f);
-            var oxygenBarPos = new Vector2(GraphicsDevice.Viewport.Width - barSize.X * 2f, barSize.X);
+            var oxygenBarPos = new Vector2(width - barSize.X * 2f, barSize.X);
             _oxygenBar = new HudBar(oxygenBarPos, barSize);
             _oxygenBar.FillColor = Color.Lime;
 
@@ -43,7 +46,6 @@ namespace gmtk_jam
 
         protected override void LoadContent()
         {
-            _spriteBatch = new SpriteBatch(GraphicsDevice);
             _batcher = new Batcher2D(GraphicsDevice);
         }
 
@@ -56,15 +58,44 @@ namespace gmtk_jam
             if (Input.KeyDown(Keys.Escape))
                 Exit();
 
+#if DEBUG
+            HandleCameraInput();
+#endif
+
             _tommy.Update();
 
             base.Update(gameTime);
+        }
+
+        private void HandleCameraInput()
+        {
+            if (Input.KeyDown(Keys.D))
+                _camera.Move(new Vector2(5f, 0));
+            if (Input.KeyDown(Keys.A))
+                _camera.Move(new Vector2(-5f, 0));
+            if (Input.KeyDown(Keys.S))
+                _camera.Move(new Vector2(0, 5f));
+            if (Input.KeyDown(Keys.W))
+                _camera.Move(new Vector2(0, -5f));
+
+            if (Input.KeyDown(Keys.Q))
+                _camera.Rotate(-0.01f);
+            if (Input.KeyDown(Keys.E))
+                _camera.Rotate(0.01f);
+
+            if (Input.KeyDown(Keys.R))
+                _camera.ZoomTo(_camera.Zoom + .01f);
+            if (Input.KeyDown(Keys.F))
+                _camera.ZoomTo(_camera.Zoom - .01f);
+
+
         }
 
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
+            _batcher.CameraMatrix = _camera.Transform;
             _tommy.Draw(_batcher);
             _mountain.Draw(_batcher);
             _oxygenBar.Draw(_batcher);

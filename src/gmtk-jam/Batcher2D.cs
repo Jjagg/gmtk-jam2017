@@ -96,6 +96,7 @@ namespace gmtk_jam
         private readonly VertexPositionColorTexture[] _vb;
         private readonly int[] _ib;
         private readonly GraphicsDevice _gd;
+        public Matrix CameraMatrix { get; set; }
         public readonly MatrixChain Matrices;
 
         private int _nextToDraw;
@@ -123,10 +124,6 @@ namespace gmtk_jam
             _batches = new List<BatchInfo>();
 
             Matrices = new MatrixChain();
-            // initialize the matrix chain with a matrix that maps coords from screen pixel space to NDC
-            var viewport = gd.Viewport;
-            var matrix2D = Matrix.CreateOrthographicOffCenter(0, viewport.Width, viewport.Height, 0, 0, 1);
-            Matrices.Push(ref matrix2D);
 
             // load glLineWidth
             SetLineWidth = (SetLineWidthDelegate) Marshal.GetDelegateForFunctionPointer(GetProcAddress("glLineWidth"), typeof(SetLineWidthDelegate));
@@ -236,6 +233,8 @@ namespace gmtk_jam
                     _setLineWidth = b.DrawInfo.LineWidth;
                     SetLineWidth(_setLineWidth);
                 }
+                _gd.Textures[0] = b.DrawInfo.T1;
+                _gd.Textures[1] = b.DrawInfo.T2;
 
                 foreach (var p in b.DrawInfo.Effect.CurrentTechnique.Passes)
                 {
@@ -280,7 +279,7 @@ namespace gmtk_jam
 
         private int AddVertex(Vector2 position, Color color, Vector2? uv = null)
         {
-            var m = Matrices.Get();
+            var m = Matrices.Get() * CameraMatrix;
             position = Vector2.Transform(position, m);
             var vertex = new VertexPositionColorTexture(new Vector3(position, 0f), color, uv ?? Vector2.Zero);
             var i = _verticesSubmitted;
