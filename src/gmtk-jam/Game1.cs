@@ -1,10 +1,10 @@
 ﻿using System;
- using FarseerPhysics;
- using FarseerPhysics.Dynamics;
+using FarseerPhysics;
+using FarseerPhysics.Dynamics;
 using gmtk_jam.Rendering;
 using Microsoft.Xna.Framework;
- using Microsoft.Xna.Framework.Graphics;
- using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace gmtk_jam
 {
@@ -86,7 +86,7 @@ namespace gmtk_jam
             var z = MathHelper.Lerp(_camera.Zoom, zoomTarget, 0.02f);
             _camera.ZoomTo(z);
             _camera.MoveTo(_tommy.Position);
-            _camera.OffsetScreen(new Vector2(0.2f, 0f));
+            _camera.OffsetScreen(new Vector2(0.3f, 0.2f));
             _mountain.Update();
 
             _physicsWorld.Step((float) gameTime.ElapsedGameTime.TotalSeconds);

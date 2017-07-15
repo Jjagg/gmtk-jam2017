@@ -58,7 +58,7 @@ namespace gmtk_jam
 
         public void OffsetScreen(Vector2 offset)
         {
-            Move(Viewport.Size.ToVector2() * offset);
+            Move(Viewport.Size.ToVector2() * offset / _zoom);
         }
 
         /// <summary>
