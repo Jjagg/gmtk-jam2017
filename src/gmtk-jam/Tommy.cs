@@ -6,6 +6,7 @@ using FarseerPhysics.Factories;
 using gmtk_jam.Interpolation;
 using gmtk_jam.Rendering;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 
 namespace gmtk_jam
 {
@@ -36,12 +37,15 @@ namespace gmtk_jam
 
         public float Progress = 1;
 
+        public int BurstsLeft;
+        public int MaxBursts = 1;
+
         public float MaxCapacity => Progress;
-        public float CurrentCapacity { get; private set; } = 0.1f; // number between 0 and 1
+        public float CurrentCapacity => BurstsLeft / (float) MaxBursts; // number between 0 and 1
         public float Oxygen { get; } = 1f; // between 0 and 1
 
         private float RoundingRadius => Size / 4f;
-        public float TargetSize => (1 + CurrentCapacity * MaxCapacity) * 1.5f;
+        public float TargetSize => (1 + CurrentCapacity * MaxCapacity *.5f);
 
         private IInterpolation _sizeInterpolation = CubicInterpolation.EaseOut;
         public float _sizeT = 1;
@@ -116,16 +120,20 @@ namespace gmtk_jam
 
         public void Update(GameTime gameTime)
         {
-            if (Input.IsDown(Input.Action.BreatheIn))
+            if (Input.IsPressed(Input.Action.BreatheIn))
                 BreatheIn(gameTime);
-            else if (Input.IsDown(Input.Action.BreatheOut))
+            else if (Input.IsPressed(Input.Action.BreatheOut))
                 BreatheOut(gameTime);
+            else if (Input.IsPressed(Input.Action.BreatheDown))
+                BreatheTurn(gameTime, -1);
+            else if (Input.IsPressed(Input.Action.BreatheUp))
+                BreatheTurn(gameTime, 1);
 
             if (_sizeT < 1)
             {
                 var ds = SizeTStep * (float) gameTime.ElapsedGameTime.TotalSeconds;
                 _sizeT = Math.Min(1, _sizeT + ds);
-                UpdateBody();
+                //UpdateBody();
             }
 
             AirTime += (float) gameTime.ElapsedGameTime.TotalSeconds;
@@ -133,22 +141,31 @@ namespace gmtk_jam
 
         private void BreatheIn(GameTime gameTime)
         {
-            if (Math.Abs(CurrentCapacity) > 1e-2)
+            if (BurstsLeft > 0)
                 return;
 
-            CurrentCapacity = MaxCapacity;
+            BurstsLeft = MaxBursts;
             _sizeT = 0;
         }
 
         private void BreatheOut(GameTime gameTime)
         {
-            var ts = (float) gameTime.ElapsedGameTime.TotalSeconds;
-            var dc = ts;
-            CurrentCapacity = MathHelper.Max(0, CurrentCapacity - dc);
+            if (BurstsLeft < 1)
+                return;
+            BurstsLeft--;
             var vec = -new Vector2((float) Math.Cos(Rotation), (float) Math.Sin(Rotation));
-            _body.ApplyLinearImpulse(.1f * vec);
+            _body.ApplyLinearImpulse(8f * vec);
 
-            UpdateBody();
+            //UpdateBody();
+        }
+
+        private void BreatheTurn(GameTime gameTime, int dir)
+        {
+            if (BurstsLeft < 1)
+                return;
+            BurstsLeft--;
+            var vec = -new Vector2((float) Math.Cos(Rotation), (float) Math.Sin(Rotation));
+            _body.ApplyAngularImpulse(dir);
         }
 
         public void Draw(Batcher2D batcher)
@@ -156,7 +173,7 @@ namespace gmtk_jam
             var rot = Matrix.CreateRotationZ(Rotation);
             var p = ConvertUnits.ToDisplayUnits(Position);
             var trans = Matrix.CreateTranslation(p.X, p.Y, 0f);
-            var scale = Matrix.CreateScale((1f + Progress) * .58f);
+            var scale = Matrix.CreateScale(Size * 1.5f);
             var mat = scale * rot * trans;
 
             var tommyNo = (int)Math.Floor(CurrentCapacity * 3.99f);

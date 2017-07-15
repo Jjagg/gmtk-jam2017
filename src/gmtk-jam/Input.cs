@@ -20,7 +20,9 @@ namespace gmtk_jam
         public enum Action
         {
             BreatheIn,
-            BreatheOut
+            BreatheOut,
+            BreatheUp,
+            BreatheDown,
         }
 
         #endregion
@@ -86,6 +88,11 @@ namespace gmtk_jam
             ActionMaps[(int) Action.BreatheOut] = new ActionMap();
             ActionMaps[(int) Action.BreatheOut].KeyboardKeys.Add(Keys.Down);
 
+            ActionMaps[(int) Action.BreatheUp] = new ActionMap();
+            ActionMaps[(int) Action.BreatheUp].KeyboardKeys.Add(Keys.Right);
+
+            ActionMaps[(int) Action.BreatheDown] = new ActionMap();
+            ActionMaps[(int) Action.BreatheDown].KeyboardKeys.Add(Keys.Left);
         }
 
         #endregion

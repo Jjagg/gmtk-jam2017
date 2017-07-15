@@ -12,7 +12,7 @@ namespace gmtk_jam
     public class Game1 : Game
     {
         public const float MinZoom = 0.1f;
-        public const float MaxZoom = 1f;
+        public const float MaxZoom = .6f;
 
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _sb;
