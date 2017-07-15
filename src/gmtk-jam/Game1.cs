@@ -33,7 +33,6 @@ namespace gmtk_jam
             Components.Add(new Input(this));
 
             _physicsWorld = new World(new Vector2(0, 10f));
-            // TODO should be dynamic
             ConvertUnits.SetDisplayUnitToSimUnitRatio(64f);
 
             var width = GraphicsDevice.Viewport.Width;
@@ -83,7 +82,11 @@ namespace gmtk_jam
             HandleCameraInput();
 #endif
             _tommy.Update(gameTime);
+            var zoomTarget = Math.Min(1f, 3f / (_tommy.Velocity.X == 0 ? 1f : _tommy.Velocity.X));
+            var z = MathHelper.Lerp(_camera.Zoom, zoomTarget, 0.02f);
+            _camera.ZoomTo(z);
             _camera.MoveTo(_tommy.Position);
+            _camera.OffsetScreen(new Vector2(0.2f, 0f));
             _mountain.Update();
 
             _physicsWorld.Step((float) gameTime.ElapsedGameTime.TotalSeconds);

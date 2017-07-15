@@ -9,10 +9,11 @@ namespace gmtk_jam
 {
     public class Tommy
     {
+        public float Mass = 3f;
+        //public float Density = 1;
+
         private readonly World _world;
         private Body _body;
-
-        public float Density = 1;
 
         public Vector2 Velocity => _body.LinearVelocity;
         public float AngularVelocity => _body.AngularVelocity;
@@ -61,10 +62,11 @@ namespace gmtk_jam
             var rot = oldBody?.Rotation ?? 0f;
 
             if (rm == 0f)
-                _body = BodyFactory.CreateRectangle(_world, sm, sm, Density, pos, rot, BodyType.Dynamic);
+                _body = BodyFactory.CreateRectangle(_world, sm, sm, 1, pos, rot, BodyType.Dynamic);
             else
-                _body = BodyFactory.CreateRoundedRectangle(_world, sm, sm, rm, rm, 10, Density, pos, rot,
-                    BodyType.Dynamic);
+                _body = BodyFactory.CreateRoundedRectangle(_world, sm, sm, rm, rm, 10, 1, pos, rot, BodyType.Dynamic);
+
+            _body.Mass = Mass;
 
             _body.AngularDamping = 0.03f;
             _body.CollidesWith = Category.All;

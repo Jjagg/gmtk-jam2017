@@ -56,6 +56,11 @@ namespace gmtk_jam
             _position = v;
         }
 
+        public void OffsetScreen(Vector2 offset)
+        {
+            Move(Viewport.Size.ToVector2() * offset);
+        }
+
         /// <summary>
         /// Rotate the camera clockwise by the given angle.
         /// </summary>
@@ -87,5 +92,6 @@ namespace gmtk_jam
         public void ZoomTo(float z) {
             _zoom = z;
         }
+
     }
 }
