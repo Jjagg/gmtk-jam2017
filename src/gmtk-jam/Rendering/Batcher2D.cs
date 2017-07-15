@@ -142,24 +142,23 @@ namespace gmtk_jam.Rendering
             AddIndex(v2);
         }
 
-        public void DrawLines(IEnumerable<Vector2> points, Color color, int lineWidth = 1)
+        public void DrawLineStrip(IList<Vector2> points, Color color, int lineWidth = 1)
         {
             var di = DrawInfo.ForLine(BasicEffect, _blankTexture, lineWidth);
             CheckFlush(di);
 
-            var en = points.GetEnumerator();
-            if (!en.MoveNext())
-                throw new Exception("No points.");
+            if (points.Count < 2)
+                throw new Exception("Need at least two points.");
 
-            var v1 = AddVertex(en.Current, color);
-            while (en.MoveNext())
+            var v1 = AddVertex(points[0], color);
+            for (var i = 1; i < points.Count; i++)
             {
+                var p = points[i];
                 AddIndex(v1);
-                var v2 = AddVertex(en.Current, color);
+                var v2 = AddVertex(p, color);
                 AddIndex(v2);
                 v1 = v2;
             }
-            en.Dispose();
         }
 
         #endregion
@@ -305,7 +304,7 @@ namespace gmtk_jam.Rendering
         public void DrawCircleSegment(Vector2 center, float radius, float start, float end, Color color, int sides, int lineWidth = 1)
         {
             var ps = ExtendedUtil.CreateCircle(center, radius, sides, start, end);
-            DrawLines(ps, color, lineWidth);
+            DrawLineStrip(ps, color, lineWidth);
         }
 
         public void FillCircle(Vector2 center, float radius, Color color, int sides)
@@ -315,9 +314,8 @@ namespace gmtk_jam.Rendering
 
         public void FillCircleSegment(Vector2 center, float radius, float start, float end, Color color, int sides)
         {
-            var circle = ExtendedUtil.CreateCircle(center, radius, sides, start, end);
-            var ps = center.Yield().Concat(circle);
-            FillTriangleFan(ps, color);
+            var ps = ExtendedUtil.CreateCircle(center, radius, sides, start, end);
+            FillTriangleFan(center, ps, color);
         }
 
         #endregion
@@ -360,31 +358,28 @@ namespace gmtk_jam.Rendering
 
         #region Low level
 
-        public void FillTriangleFan(IEnumerable<Vector2> ps, Color color)
+        public void FillTriangleFan(Vector2 center, IList<Vector2> ps, Color color)
         {
             var di = DrawInfo.ForFill(BasicEffect, _blankTexture);
             CheckFlush(di);
 
-            var en = ps.GetEnumerator();
-            en.MoveNext();
+            if (ps.Count < 3)
+                throw new Exception("Triangle fan needs at least 3 points.");
 
-            var center = AddVertex(en.Current, color);
-            en.MoveNext();
-
-            var v0 = AddVertex(en.Current, color);
-            var v1 = v0;
-            while (en.MoveNext())
+            var centerIndex = AddVertex(center, color);
+            var v0 =  AddVertex(ps[0], color);
+            var v1 = AddVertex(ps[0], color);
+            for (var i = 1; i < ps.Count; i++)
             {
-                var v2 = AddVertex(en.Current, color);
+                var v2 = AddVertex(ps[i], color);
                 AddIndex(v1);
                 AddIndex(v2);
-                AddIndex(center);
+                AddIndex(centerIndex);
                 v1 = v2;
             }
             AddIndex(v1);
             AddIndex(v0);
-            AddIndex(center);
-            en.Dispose();
+            AddIndex(centerIndex);
         }
 
         #endregion

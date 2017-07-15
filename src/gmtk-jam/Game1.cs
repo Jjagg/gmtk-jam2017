@@ -25,6 +25,8 @@ namespace gmtk_jam
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
+            _graphics.SynchronizeWithVerticalRetrace = false;
+            IsFixedTimeStep = false;
             Content.RootDirectory = "Content";
         }
 
@@ -61,8 +63,8 @@ namespace gmtk_jam
             Assets.Load(Content);
 
 #if DEBUG
-            Components.Add(new FrameRateCounter(this));
 #endif
+            Components.Add(new FrameRateCounter(this));
 
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
 
@@ -90,7 +92,6 @@ namespace gmtk_jam
             _mountain.Update();
 
             _physicsWorld.Step((float) gameTime.ElapsedGameTime.TotalSeconds);
-
 
             base.Update(gameTime);
         }
@@ -142,6 +143,9 @@ namespace gmtk_jam
             _sb.Begin();
 
             _sb.DrawString(Assets.Font12, "Slightly Rounded Square", new Vector2(10f, 460f), Color.White);
+#if DEBUG
+            _sb.DrawString(Assets.Font12, $"Mountain points = {_mountain.PointCount}", new Vector2(10f, 450f), Color.White);
+#endif
 
             _sb.End();
         }

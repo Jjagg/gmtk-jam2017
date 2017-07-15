@@ -28,6 +28,8 @@ namespace gmtk_jam
         public float DerivativeChangeRate { get; set; } = 0.1f;
         public float DiscontinuityChance { get; set; } = 0.02f;
 
+        public int PointCount => _points.Count;
+
         public Mountain(World world, Camera camera)
         {
             _world = world;
@@ -94,7 +96,7 @@ namespace gmtk_jam
 
         public void Draw(Batcher2D batcher)
         {
-            batcher.DrawLines(_points, Color.Black, 4);
+            batcher.DrawLineStrip(_points, Color.Black, 4);
         }
     }
 }
