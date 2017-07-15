@@ -206,15 +206,15 @@ namespace gmtk_jam.Rendering
             AddIndex(v3);
         }
 
-        public void FillRect(Rectangle rect, Texture2D tex)
+        public void FillRect(Rectangle rect, Sprite sprite)
         {
-            var di = DrawInfo.ForFill(BasicEffect, tex);
+            var di = DrawInfo.ForFill(BasicEffect, sprite.Texture);
             CheckFlush(di);
 
-            var v1 = AddVertex(new Vector2(rect.Left, rect.Top), Vector2.Zero);
-            var v2 = AddVertex(new Vector2(rect.Right, rect.Top), Vector2.UnitX);
-            var v3 = AddVertex(new Vector2(rect.Right, rect.Bottom), Vector2.One);
-            var v4 = AddVertex(new Vector2(rect.Left, rect.Bottom), Vector2.UnitY);
+            var v1 = AddVertex(new Vector2(rect.Left, rect.Top), sprite.UV1);
+            var v2 = AddVertex(new Vector2(rect.Right, rect.Top), sprite.UV2);
+            var v3 = AddVertex(new Vector2(rect.Right, rect.Bottom), sprite.UV3);
+            var v4 = AddVertex(new Vector2(rect.Left, rect.Bottom), sprite.UV4);
 
             AddIndex(v1);
             AddIndex(v2);

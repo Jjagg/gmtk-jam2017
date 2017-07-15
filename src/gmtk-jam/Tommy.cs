@@ -91,10 +91,13 @@ namespace gmtk_jam
         {
             var rot = Matrix.CreateRotationZ(Rotation);
             var trans = Matrix.CreateTranslation(Position.X, Position.Y, 0f);
-            var mat = rot * trans;
+            var scale = Matrix.CreateScale(1f + Progress);
+            var mat = scale * rot * trans;
+
+            var spriteNumber = (CurrentCapacity > 0.5f) ? 1 : 0;
 
             batcher.Matrices.Push(ref mat);
-            batcher.FillRect(Bounding, Assets.TommyNormal);
+            batcher.FillRect(Bounding, Assets.TommySheet.GetSprite(spriteNumber));
             batcher.Matrices.Pop();
             batcher.Flush();
         }

@@ -102,6 +102,8 @@
     <Compile Include="Mountain.cs" />
     <Compile Include="HudBar.cs" />
     <Compile Include="Physics.cs" />
+    <Compile Include="Sprite.cs" />
+    <Compile Include="SpriteSheet.cs" />
     <Compile Include="Tommy.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

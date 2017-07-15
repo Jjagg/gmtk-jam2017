@@ -13,7 +13,7 @@ namespace gmtk_jam
         public static SpriteFont Font24 { get; private set; }
         public static Texture2D BlankTexture { get; private set; }
 
-        public static Texture2D TommyNormal { get; private set; }
+        public static SpriteSheet TommySheet { get; private set; }
 
         public static void Load(ContentManager cm)
         {
@@ -28,7 +28,7 @@ namespace gmtk_jam
             BlankTexture = new Texture2D(gd, 1, 1);
             BlankTexture.SetData(new[] {Color.White.PackedValue});
 
-            TommyNormal = cm.Load<Texture2D>("tommy_normal");
+            TommySheet = new SpriteSheet(cm.Load<Texture2D>("tommy"), 1, 2);
         }
     }
 }

@@ -41,7 +41,7 @@
 /processorParam:TextureFormat=Compressed
 /build:font20.spritefont
 
-#begin tommy_normal.png
+#begin tommy.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -51,5 +51,5 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:tommy_normal.png
+/build:tommy.png
 

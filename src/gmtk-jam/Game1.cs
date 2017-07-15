@@ -124,6 +124,8 @@ namespace gmtk_jam
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
+            DrawSky();
+
             _batcher.CameraMatrix = _camera.Transform;
             _tommy.Draw(_batcher);
             _mountain.Draw(_batcher);
@@ -148,6 +150,21 @@ namespace gmtk_jam
 #endif
 
             _sb.End();
+        }
+
+        private readonly Color[] _skyColors =
+        {
+            new Color(0xb1, 0xe3, 0xff),
+            new Color(0xb1, 0xf3, 0xff),
+            new Color(0x11, 0x99, 0xd4),
+            new Color(0xee, 0x99, 0xd4)
+        };
+        private void DrawSky()
+        {
+            var width = GraphicsDevice.Viewport.Width;
+            var height = GraphicsDevice.Viewport.Height;
+            _batcher.FillRect(new Rectangle(0, 0, width, height),
+                _skyColors[0], _skyColors[1], _skyColors[2], _skyColors[3]);
         }
     }
 }
