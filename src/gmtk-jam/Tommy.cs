@@ -55,6 +55,8 @@ namespace gmtk_jam
 
         public RectangleF Bounding => new RectangleF(-HalfSizeVector, SizeVector);
 
+        public float AirTime;
+
         public Tommy(World world)
         {
             _world = world;
@@ -66,6 +68,7 @@ namespace gmtk_jam
         {
             if (fixtureB.CollisionCategories == Physics.MountainCategory)
             {
+                AirTime = 0;
                 if (_sizeT == 1)
                 {
 
@@ -124,6 +127,8 @@ namespace gmtk_jam
                 _sizeT = Math.Min(1, _sizeT + ds);
                 UpdateBody();
             }
+
+            AirTime += (float) gameTime.ElapsedGameTime.TotalSeconds;
         }
 
         private void BreatheIn(GameTime gameTime)

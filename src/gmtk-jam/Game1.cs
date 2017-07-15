@@ -1,6 +1,7 @@
 ﻿using System;
 using FarseerPhysics;
 using FarseerPhysics.Dynamics;
+using FarseerPhysics.Factories;
 using gmtk_jam.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -10,11 +11,15 @@ namespace gmtk_jam
 {
     public class Game1 : Game
     {
+        public const float MinZoom = 0.1f;
+        public const float MaxZoom = 1f;
+
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _sb;
         private Batcher2D _batcher;
 
         private BasicCamera _camera;
+        private float _highestCameraX;
         private Tommy _tommy;
         private Mountain _mountain;
         private HudBar _oxygenBar;
@@ -31,6 +36,7 @@ namespace gmtk_jam
 
         // Physics
         private World _physicsWorld;
+        private Body _leftBlocker;
 
         public Game1()
         {
@@ -61,6 +67,7 @@ namespace gmtk_jam
             var oxygenBarPos = new Vector2(width - barSize.X * 2f, barSize.X);
             _oxygenBar = new HudBar(oxygenBarPos, barSize);
             _oxygenBar.FillColor = Color.Lime;
+
 
             base.Initialize();
         }
@@ -100,16 +107,31 @@ namespace gmtk_jam
             HandleCameraInput();
 #endif
             _tommy.Update(gameTime);
-            var zoomTarget = Math.Min(1f, 3f / (_tommy.Velocity.X < 0.001 ? 1f : _tommy.Velocity.X));
-            var z = MathHelper.Clamp(MathHelper.Lerp(_camera.Zoom, zoomTarget, 0.002f), 0.1f, 1f);
-            _camera.ZoomTo(z);
-            _camera.MoveTo(ConvertUnits.ToDisplayUnits(_tommy.Position));
-            _camera.OffsetScreen(new Vector2(0.3f, 0.2f));
+
+            UpdateCamera();
+
             _mountain.Update();
 
             _physicsWorld.Step((float) gameTime.ElapsedGameTime.TotalSeconds);
 
             base.Update(gameTime);
+        }
+
+        private void UpdateCamera()
+        {
+            var zoomTarget = Math.Min(1f, 3f / (_tommy.Velocity.X < 0.001 ? 1f : _tommy.Velocity.X));
+            var z = MathHelper.Clamp(MathHelper.Lerp(_camera.Zoom, zoomTarget, 0.002f), MinZoom, MaxZoom);
+            _camera.ZoomTo(z);
+            _camera.MoveTo(ConvertUnits.ToDisplayUnits(_tommy.Position));
+            _camera.OffsetScreen(new Vector2(0.3f, 0.2f));
+            if (_camera.Position.X > _highestCameraX)
+                _highestCameraX = _camera.Position.X;
+            else
+                _camera.MoveTo(new Vector2(_highestCameraX, _camera.Position.Y));
+
+            var br = _camera.BoundingRect.ToRectangleF().ToSimUnits();
+            _leftBlocker?.Dispose();
+            _leftBlocker = BodyFactory.CreateEdge(_physicsWorld, new Vector2(br.Left, br.Top), new Vector2(br.Left, br.Bottom));
         }
 
         private void HandleCameraInput()
@@ -177,6 +199,7 @@ namespace gmtk_jam
             _batcher.FillRect(new RectangleF(0, 0, width, height),
                 _skyColors[0], _skyColors[1], _skyColors[2], _skyColors[3]);
         }
+
         private void DrawHud()
         {
             _batcher.CameraMatrix = _camera.Projection;
@@ -189,7 +212,7 @@ namespace gmtk_jam
             _sb.DrawString(Assets.Font12, $"Tommy Position = {_tommy.Position}", new Vector2(10f, 390f), Color.White);
             _sb.DrawString(Assets.Font12, $"Tommy Speed = {_tommy.Velocity}", new Vector2(10f, 400f), Color.White);
             _sb.DrawString(Assets.Font12, $"Tommy Size = {_tommy.Size}", new Vector2(10f, 410f), Color.White);
-            _sb.DrawString(Assets.Font12, $"Tommy Target Size = {_tommy.TargetSize}", new Vector2(10f, 420f), Color.White);
+            _sb.DrawString(Assets.Font12, $"Tommy Airtime = {_tommy.AirTime}", new Vector2(10f, 420f), Color.White);
             _sb.DrawString(Assets.Font12, $"Tommy t = {_tommy._sizeT}", new Vector2(10f, 430f), Color.White);
             _sb.DrawString(Assets.Font12, $"Cap = {_tommy.CurrentCapacity}", new Vector2(10f, 440f), Color.White);
             _sb.DrawString(Assets.Font12, $"Mountain points = {_mountain.PointCount}", new Vector2(10f, 450f), Color.White);
