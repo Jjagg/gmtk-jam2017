@@ -61,7 +61,7 @@ namespace gmtk_jam
             var pos = oldBody?.Position ?? Vector2.Zero;
             var rot = oldBody?.Rotation ?? 0f;
 
-            if (rm == 0f)
+            if (Math.Abs(rm) < 1e-5f)
                 _body = BodyFactory.CreateRectangle(_world, sm, sm, 1, pos, rot, BodyType.Dynamic);
             else
                 _body = BodyFactory.CreateRoundedRectangle(_world, sm, sm, rm, rm, 10, 1, pos, rot, BodyType.Dynamic);
@@ -85,8 +85,6 @@ namespace gmtk_jam
                 var vec = -new Vector2((float) Math.Cos(Rotation), (float) Math.Sin(Rotation));
                 _body.ApplyLinearImpulse(vec * 0.1f);
             }
-
-            //Rotation += 0.02f;
         }
 
         public void Draw(Batcher2D batcher)
@@ -96,7 +94,7 @@ namespace gmtk_jam
             var mat = rot * trans;
 
             batcher.Matrices.Push(ref mat);
-            batcher.FillRoundedRect(Bounding, RoundingRadius, 6, Color.Red);
+            batcher.FillRect(Bounding, Assets.TommyNormal);
             batcher.Matrices.Pop();
             batcher.Flush();
         }

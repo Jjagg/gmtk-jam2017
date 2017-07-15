@@ -94,7 +94,7 @@ namespace gmtk_jam
 
         public void Draw(Batcher2D batcher)
         {
-            batcher.DrawLines(_points, Color.LawnGreen, 2);
+            batcher.DrawLines(_points, Color.Black, 4);
         }
     }
 }

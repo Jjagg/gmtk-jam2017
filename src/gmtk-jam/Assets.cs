@@ -13,6 +13,8 @@ namespace gmtk_jam
         public static SpriteFont Font24 { get; private set; }
         public static Texture2D BlankTexture { get; private set; }
 
+        public static Texture2D TommyNormal { get; private set; }
+
         public static void Load(ContentManager cm)
         {
             var gd = ((IGraphicsDeviceService) cm.ServiceProvider.GetService(typeof(IGraphicsDeviceService))).GraphicsDevice;
@@ -26,6 +28,7 @@ namespace gmtk_jam
             BlankTexture = new Texture2D(gd, 1, 1);
             BlankTexture.SetData(new[] {Color.White.PackedValue});
 
+            TommyNormal = cm.Load<Texture2D>("tommy_normal");
         }
     }
 }

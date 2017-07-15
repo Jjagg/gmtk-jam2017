@@ -112,7 +112,7 @@ namespace gmtk_jam.Rendering
             {
                 LightingEnabled = false,
                 VertexColorEnabled = true,
-                TextureEnabled = false,
+                TextureEnabled = true,
             };
 
             _blankTexture = new Texture2D(gd, 1, 1);
@@ -324,7 +324,7 @@ namespace gmtk_jam.Rendering
 
         public void Flush()
         {
-            _gd.BlendState = BlendState.Opaque;
+            _gd.BlendState = BlendState.AlphaBlend;
             _gd.DepthStencilState = DepthStencilState.None;
             _gd.SamplerStates[0] = SamplerState.LinearWrap;
 
