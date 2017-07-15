@@ -20,6 +20,10 @@ namespace gmtk_jam
         public static Texture2D Scenery2 { get; private set; }
         public static Texture2D Scenery3 { get; private set; }
 
+        public static Texture2D Cloud1 { get; private set; }
+        public static Texture2D Cloud2 { get; private set; }
+        public static Texture2D Cloud3 { get; private set; }
+
         public static void Load(ContentManager cm)
         {
             var gd = ((IGraphicsDeviceService) cm.ServiceProvider.GetService(typeof(IGraphicsDeviceService))).GraphicsDevice;
@@ -39,6 +43,10 @@ namespace gmtk_jam
             Scenery1 = cm.Load<Texture2D>("scenery1");
             Scenery2 = cm.Load<Texture2D>("scenery2");
             Scenery3 = cm.Load<Texture2D>("scenery3");
+
+            Cloud1 = cm.Load<Texture2D>("cloud1");
+            Cloud2 = cm.Load<Texture2D>("cloud2");
+            Cloud3 = cm.Load<Texture2D>("cloud3");
         }
     }
 }
