@@ -165,7 +165,7 @@ namespace gmtk_jam.Rendering
 
         #region Rectangle
 
-        public void DrawRect(Rectangle rect, Color color, int lineWidth = 1)
+        public void DrawRect(RectangleF rect, Color color, int lineWidth = 1)
         {
             var di = DrawInfo.ForLine(BasicEffect, _blankTexture, lineWidth);
             CheckFlush(di);
@@ -184,12 +184,12 @@ namespace gmtk_jam.Rendering
             AddIndex(v1);
         }
 
-        public void FillRect(Rectangle rect, Color color)
+        public void FillRect(RectangleF rect, Color color)
         {
             FillRect(rect, color, color, color, color);
         }
 
-        public void FillRect(Rectangle rect, Color c1, Color c2, Color c3, Color c4)
+        public void FillRect(RectangleF rect, Color c1, Color c2, Color c3, Color c4)
         {
             var di = DrawInfo.ForFill(BasicEffect, _blankTexture);
             CheckFlush(di);
@@ -206,7 +206,7 @@ namespace gmtk_jam.Rendering
             AddIndex(v3);
         }
 
-        public void FillRect(Rectangle rect, Sprite sprite)
+        public void FillRect(RectangleF rect, Sprite sprite)
         {
             var di = DrawInfo.ForFill(BasicEffect, sprite.Texture);
             CheckFlush(di);
@@ -224,7 +224,7 @@ namespace gmtk_jam.Rendering
             AddIndex(v3);   
         }
 
-        public void DrawRoundedRect(Rectangle rect, Color color, int lineWidth = 1)
+        public void DrawRoundedRect(RectangleF rect, Color color, int lineWidth = 1)
         {
             var di = DrawInfo.ForLine(BasicEffect, _blankTexture, lineWidth);
             CheckFlush(di);
@@ -243,7 +243,7 @@ namespace gmtk_jam.Rendering
             AddIndex(v1);
         }
 
-        public void FillRoundedRect(Rectangle rectangle, float radius, int segments, Color color)
+        public void FillRoundedRect(RectangleF rectangle, float radius, int segments, Color color)
         {
             if (radius > rectangle.Width / 2f || radius > rectangle.Height / 2f)
                 throw new Exception("Radius too large");
@@ -258,8 +258,8 @@ namespace gmtk_jam.Rendering
             var innerRect = rectangle;
             innerRect.Inflate(-radius, -radius);
 
-            FillRect(new Rectangle(innerRect.Left, outerRect.Top, innerRect.Width, outerRect.Height), color);
-            FillRect(new Rectangle(outerRect.Left, innerRect.Top, outerRect.Width, innerRect.Height), color);
+            FillRect(new RectangleF(innerRect.Left, outerRect.Top, innerRect.Width, outerRect.Height), color);
+            FillRect(new RectangleF(outerRect.Left, innerRect.Top, outerRect.Width, innerRect.Height), color);
             var leftAngle = MathHelper.Pi;
             var topAngle = 3 * MathHelper.PiOver2;
             var rightAngle = 0;
@@ -274,7 +274,7 @@ namespace gmtk_jam.Rendering
             FillCircleSegment(bl, radius, botAngle, leftAngle, color, segments);
         }
 
-        public void FillRoundedRect(Rectangle rect, Texture2D tex)
+        public void FillRoundedRect(RectangleF rect, Texture2D tex)
         {
             var di = DrawInfo.ForFill(BasicEffect, tex);
             CheckFlush(di);

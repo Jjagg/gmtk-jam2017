@@ -20,9 +20,9 @@ namespace gmtk_jam
 
         public void Draw(Batcher2D batcher)
         {
-            var rect = new Rectangle(Position.ToPoint(), Size.ToPoint());
+            var rect = new RectangleF(Position, Size);
             var borderRect = rect;
-            borderRect.Inflate(HalfBorderThickness, HalfBorderThickness);
+            borderRect = borderRect.Inflate(HalfBorderThickness, HalfBorderThickness);
 
             batcher.DrawRect(borderRect, BorderColor, BorderThickness);
             batcher.FillRect(rect, FillColor);

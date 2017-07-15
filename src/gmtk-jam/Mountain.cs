@@ -21,10 +21,10 @@ namespace gmtk_jam
         private readonly Camera _camera;
 
         private readonly Random _rand;
-        private float _derivative = .3f;
+        private float _derivative = .2f;
 
         public float MinDerivative { get; set; } = 0.2f;
-        public float MaxDerivative { get; set; } = 2f;
+        public float MaxDerivative { get; set; } = .8f;
         public float DerivativeChangeRate { get; set; } = 0.1f;
         public float DiscontinuityChance { get; set; } = 0.02f;
 
@@ -87,8 +87,8 @@ namespace gmtk_jam
             // todo two lists for efficiency
             var vertices = new Vertices(_points.Select(ConvertUnits.ToSimUnits));
             _body = BodyFactory.CreateChainShape(_world, vertices);
-            _body.Friction = 0.4f;
-            _body.Restitution = 0.25f;
+            _body.Friction = 0.8f;
+            _body.Restitution = 0.05f;
             
             _body.CollisionCategories = Physics.MountainCategory;
             _body.CollidesWith = Category.All;

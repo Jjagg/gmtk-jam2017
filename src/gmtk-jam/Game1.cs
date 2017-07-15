@@ -84,8 +84,8 @@ namespace gmtk_jam
             HandleCameraInput();
 #endif
             _tommy.Update(gameTime);
-            var zoomTarget = Math.Min(1f, 3f / (_tommy.Velocity.X == 0 ? 1f : _tommy.Velocity.X));
-            var z = MathHelper.Lerp(_camera.Zoom, zoomTarget, 0.02f);
+            var zoomTarget = Math.Min(1f, 3f / (_tommy.Velocity.X < 0.001 ? 1f : _tommy.Velocity.X));
+            var z = MathHelper.Clamp(MathHelper.Lerp(_camera.Zoom, zoomTarget, 0.02f), 0.1f, 1f);
             _camera.ZoomTo(z);
             _camera.MoveTo(_tommy.Position);
             _camera.OffsetScreen(new Vector2(0.3f, 0.2f));
@@ -124,7 +124,7 @@ namespace gmtk_jam
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            DrawSky();
+            DrawScenery();
 
             _batcher.CameraMatrix = _camera.Transform;
             _tommy.Draw(_batcher);
@@ -137,6 +137,27 @@ namespace gmtk_jam
             base.Draw(gameTime);
         }
 
+        private void DrawScenery()
+        {
+            _batcher.CameraMatrix = _camera.Projection;
+            DrawSky();
+        }
+
+        private readonly Color[] _skyColors =
+        {
+            new Color(0xb1, 0xe3, 0xff),
+            new Color(0xb1, 0xf3, 0xff),
+            new Color(0x11, 0x99, 0xd4),
+            new Color(0xee, 0x99, 0xd4)
+        };
+
+        private void DrawSky()
+        {
+            var width = GraphicsDevice.Viewport.Width;
+            var height = GraphicsDevice.Viewport.Height;
+            _batcher.FillRect(new RectangleF(0, 0, width, height),
+                _skyColors[0], _skyColors[1], _skyColors[2], _skyColors[3]);
+        }
         private void DrawHud()
         {
             _batcher.CameraMatrix = _camera.Projection;
@@ -152,19 +173,5 @@ namespace gmtk_jam
             _sb.End();
         }
 
-        private readonly Color[] _skyColors =
-        {
-            new Color(0xb1, 0xe3, 0xff),
-            new Color(0xb1, 0xf3, 0xff),
-            new Color(0x11, 0x99, 0xd4),
-            new Color(0xee, 0x99, 0xd4)
-        };
-        private void DrawSky()
-        {
-            var width = GraphicsDevice.Viewport.Width;
-            var height = GraphicsDevice.Viewport.Height;
-            _batcher.FillRect(new Rectangle(0, 0, width, height),
-                _skyColors[0], _skyColors[1], _skyColors[2], _skyColors[3]);
-        }
     }
 }
