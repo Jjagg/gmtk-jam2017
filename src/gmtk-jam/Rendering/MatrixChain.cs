@@ -2,7 +2,7 @@
 using System.Linq;
 using Microsoft.Xna.Framework;
 
-namespace GameSandbox
+namespace gmtk_jam.Rendering
 {
     public class MatrixChain
     {

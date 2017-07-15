@@ -24,6 +24,7 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>false</Prefer32Bit>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <OutputPath>bin\$(MonoGamePlatform)\$(Platform)\$(Configuration)\</OutputPath>
@@ -42,20 +43,71 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Assets.cs" />
     <Compile Include="BasicCamera.cs" />
-    <Compile Include="Batcher2D.cs" />
+    <Compile Include="Interpolation\CubicInterpolation.cs" />
+    <Compile Include="Interpolation\Interpolation.cs" />
+    <Compile Include="Interpolation\LinearInterpolation.cs" />
+    <Compile Include="Rendering\Batcher2D.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Extended\Util.cs" />
+    <Compile Include="FrameRateCounter.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Input.cs" />
-    <Compile Include="MatrixChain.cs" />
+    <Compile Include="Rendering\MatrixChain.cs" />
+    <Compile Include="Mercury\Axis.cs" />
+    <Compile Include="Mercury\BlendMode.cs" />
+    <Compile Include="Mercury\ColorHelper.cs" />
+    <Compile Include="Mercury\Colour.cs" />
+    <Compile Include="Mercury\ColourRange.cs" />
+    <Compile Include="Mercury\Emitter.cs" />
+    <Compile Include="Mercury\FastRand.cs" />
+    <Compile Include="Mercury\LineSegment.cs" />
+    <Compile Include="Mercury\ModifierExecutionStrategy.cs" />
+    <Compile Include="Mercury\Modifiers\ColourInterpolator2.cs" />
+    <Compile Include="Mercury\Modifiers\Container\CircleContainerModifier.cs" />
+    <Compile Include="Mercury\Modifiers\Container\RectContainerModifier.cs" />
+    <Compile Include="Mercury\Modifiers\Container\RectLoopContainerModifier.cs" />
+    <Compile Include="Mercury\Modifiers\DragModifier.cs" />
+    <Compile Include="Mercury\Modifiers\HueInterpolator2.cs" />
+    <Compile Include="Mercury\Modifiers\IModifier.cs" />
+    <Compile Include="Mercury\Modifiers\LinearGravityModifier.cs" />
+    <Compile Include="Mercury\Modifiers\OpacityFastFadeModifier.cs" />
+    <Compile Include="Mercury\Modifiers\OpacityInterpolator2.cs" />
+    <Compile Include="Mercury\Modifiers\RotationModifier.cs" />
+    <Compile Include="Mercury\Modifiers\ScaleInterpolator2.cs" />
+    <Compile Include="Mercury\Modifiers\VelocityColourModifier.cs" />
+    <Compile Include="Mercury\Modifiers\VelocityHueModifier.cs" />
+    <Compile Include="Mercury\Modifiers\VortexModifier.cs" />
+    <Compile Include="Mercury\Particle.cs" />
+    <Compile Include="Mercury\ParticleBuffer.cs" />
+    <Compile Include="Mercury\ParticleEffect.cs" />
+    <Compile Include="Mercury\Profiles\BoxFillProfile.cs" />
+    <Compile Include="Mercury\Profiles\BoxProfile.cs" />
+    <Compile Include="Mercury\Profiles\BoxUniformProfile.cs" />
+    <Compile Include="Mercury\Profiles\CircleProfile.cs" />
+    <Compile Include="Mercury\Profiles\LineProfile.cs" />
+    <Compile Include="Mercury\Profiles\PointProfile.cs" />
+    <Compile Include="Mercury\Profiles\Profile.cs" />
+    <Compile Include="Mercury\Profiles\RingProfile.cs" />
+    <Compile Include="Mercury\Profiles\SprayProfile.cs" />
+    <Compile Include="Mercury\Range.cs" />
+    <Compile Include="Mercury\RangeF.cs" />
+    <Compile Include="Mercury\ReleaseParameters.cs" />
+    <Compile Include="Mercury\RenderingOrder.cs" />
+    <Compile Include="Mercury\SpritebatchRenderer.cs" />
+    <Compile Include="Mercury\Vector.cs" />
     <Compile Include="Mountain.cs" />
     <Compile Include="HudBar.cs" />
+    <Compile Include="Physics.cs" />
     <Compile Include="Tommy.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="FarseerPhysics.Portable, Version=3.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FarseerPhysics.Portable.3.5.1\lib\portable-net4+sl4+wp8+win8\FarseerPhysics.Portable.dll</HintPath>
+    </Reference>
     <Reference Include="MonoGame.Framework">
       <HintPath>$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\DesktopGL\MonoGame.Framework.dll</HintPath>
     </Reference>
@@ -113,6 +165,11 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="app.manifest" />
+    <None Include="Mercury\packages.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Mercury\Mercury.ParticleEngine.Core.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />

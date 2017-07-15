@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using gmtk_jam.Rendering;
+using Microsoft.Xna.Framework;
 
 namespace gmtk_jam
 {

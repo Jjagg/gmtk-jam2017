@@ -1,19 +1,26 @@
 ﻿using System;
- using System.Linq;
- using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+ using FarseerPhysics;
+ using FarseerPhysics.Dynamics;
+using gmtk_jam.Rendering;
+using Microsoft.Xna.Framework;
+ using Microsoft.Xna.Framework.Graphics;
+ using Microsoft.Xna.Framework.Input;
 
 namespace gmtk_jam
 {
     public class Game1 : Game
     {
         private GraphicsDeviceManager _graphics;
+        private SpriteBatch _sb;
         private Batcher2D _batcher;
 
         private BasicCamera _camera;
         private Tommy _tommy;
         private Mountain _mountain;
         private HudBar _oxygenBar;
+
+        // Physics
+        private World _physicsWorld;
 
         public Game1()
         {
@@ -23,8 +30,11 @@ namespace gmtk_jam
 
         protected override void Initialize()
         {
-            var input = new Input(this);
-            Components.Add(input);
+            Components.Add(new Input(this));
+
+            _physicsWorld = new World(new Vector2(0, 10f));
+            // TODO should be dynamic
+            ConvertUnits.SetDisplayUnitToSimUnitRatio(64f);
 
             var width = GraphicsDevice.Viewport.Width;
             var height = GraphicsDevice.Viewport.Height;
@@ -32,10 +42,10 @@ namespace gmtk_jam
             _camera = new BasicCamera(GraphicsDevice);
             _camera.MoveTo(new Vector2(width / 2f, height / 2f));
 
-            _tommy = new Tommy();
+            _tommy = new Tommy(_physicsWorld);
             _tommy.Position = new Vector2(100f);
 
-            _mountain = new Mountain(_camera);
+            _mountain = new Mountain(_physicsWorld, _camera);
             var barSize = new Vector2(40f, 100f);
             var oxygenBarPos = new Vector2(width - barSize.X * 2f, barSize.X);
             _oxygenBar = new HudBar(oxygenBarPos, barSize);
@@ -46,7 +56,18 @@ namespace gmtk_jam
 
         protected override void LoadContent()
         {
+            _sb = new SpriteBatch(GraphicsDevice);
             _batcher = new Batcher2D(GraphicsDevice);
+
+            Assets.Load(Content);
+
+#if DEBUG
+            Components.Add(new FrameRateCounter(this));
+#endif
+
+            GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
+
+            base.LoadContent();
         }
 
         protected override void UnloadContent()
@@ -61,8 +82,12 @@ namespace gmtk_jam
 #if DEBUG
             HandleCameraInput();
 #endif
+            _tommy.Update(gameTime);
+            _camera.MoveTo(_tommy.Position);
+            _mountain.Update();
 
-            _tommy.Update();
+            _physicsWorld.Step((float) gameTime.ElapsedGameTime.TotalSeconds);
+
 
             base.Update(gameTime);
         }
@@ -87,8 +112,6 @@ namespace gmtk_jam
                 _camera.ZoomTo(_camera.Zoom + .01f);
             if (Input.KeyDown(Keys.F))
                 _camera.ZoomTo(_camera.Zoom - .01f);
-
-
         }
 
         protected override void Draw(GameTime gameTime)
@@ -98,18 +121,23 @@ namespace gmtk_jam
             _batcher.CameraMatrix = _camera.Transform;
             _tommy.Draw(_batcher);
             _mountain.Draw(_batcher);
-            _oxygenBar.Draw(_batcher);
+
+            DrawHud();
 
             _batcher.Flush();
 
-            var pts = _tommy.Points().ToList();
-
-            _batcher.DrawLine(pts[0], pts[1], Color.AliceBlue, 2);
-            _batcher.DrawLine(pts[1], pts[2], Color.AliceBlue, 2);
-            _batcher.DrawLine(pts[2], pts[3], Color.AliceBlue, 2);
-            _batcher.DrawLine(pts[3], pts[0], Color.AliceBlue, 2);
-
             base.Draw(gameTime);
+        }
+
+        private void DrawHud()
+        {
+            _oxygenBar.Draw(_batcher);
+
+            _sb.Begin();
+
+            _sb.DrawString(Assets.Font12, "Slightly Rounded Square", new Vector2(10f, 460f), Color.White);
+
+            _sb.End();
         }
     }
 }

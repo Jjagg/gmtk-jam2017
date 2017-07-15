@@ -110,5 +110,10 @@ namespace gmtk_jam
                     (int) (max.X - min.X), (int) (max.Y - min.Y));
             }
         }
+
+        public float Left => Position.X - HalfWidth;
+        public float Right => Position.X + HalfWidth;
+        public float Top => Position.Y - HalfHeight;
+        public float Bottom => Position.Y + HalfHeight;
     }
 }

@@ -5,7 +5,7 @@ using gmtk_jam.Extended;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace gmtk_jam
+namespace gmtk_jam.Rendering
 {
     public class Batcher2D
     {
@@ -90,7 +90,6 @@ namespace gmtk_jam
         public const int DefaultMaxIndices = 4096;
 
         public readonly BasicEffect BasicEffect;
-        public readonly AlphaTestEffect AlphaEffect;
         private readonly Texture2D _blankTexture;
 
         private readonly VertexPositionColorTexture[] _vb;
@@ -112,9 +111,9 @@ namespace gmtk_jam
             {
                 LightingEnabled = false,
                 VertexColorEnabled = true,
-                TextureEnabled = true,
+                TextureEnabled = false,
             };
-            AlphaEffect = new AlphaTestEffect(gd);
+
             _blankTexture = new Texture2D(gd, 1, 1);
             _blankTexture.SetData(new[] {Color.White.PackedValue});
 
@@ -253,15 +252,22 @@ namespace gmtk_jam
 
         public void Flush()
         {
+            _gd.BlendState = BlendState.Opaque;
+            _gd.DepthStencilState = DepthStencilState.None;
+            _gd.SamplerStates[0] = SamplerState.LinearWrap;
+
             // register last batch
             RegisterFlush();
             foreach (var b in _batches)
             {
+                BasicEffect.Texture = b.DrawInfo.T1;
+
                 if (b.DrawInfo.PrimitiveType == PrimitiveType.LineList && b.DrawInfo.LineWidth != _setLineWidth)
                 {
                     _setLineWidth = b.DrawInfo.LineWidth;
                     SetLineWidth(_setLineWidth);
                 }
+
                 _gd.Textures[0] = b.DrawInfo.T1;
                 _gd.Textures[1] = b.DrawInfo.T2;
 
