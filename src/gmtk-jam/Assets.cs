@@ -14,6 +14,7 @@ namespace gmtk_jam
         public static Texture2D BlankTexture { get; private set; }
 
         public static SpriteSheet TommySheet { get; private set; }
+        public static SpriteSheet EyesSheet { get; private set; }
 
         public static void Load(ContentManager cm)
         {
@@ -28,7 +29,8 @@ namespace gmtk_jam
             BlankTexture = new Texture2D(gd, 1, 1);
             BlankTexture.SetData(new[] {Color.White.PackedValue});
 
-            TommySheet = new SpriteSheet(cm.Load<Texture2D>("tommy"), 1, 2);
+            TommySheet = new SpriteSheet(cm.Load<Texture2D>("tommy"), 1, 4);
+            EyesSheet = new SpriteSheet(cm.Load<Texture2D>("eyes"), 1, 5);
         }
     }
 }

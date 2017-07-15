@@ -117,10 +117,23 @@ namespace gmtk_jam
             var scale = Matrix.CreateScale(1f + Progress);
             var mat = scale * rot * trans;
 
-            var spriteNumber = (CurrentCapacity > 0.5f) ? 1 : 0;
+            var tommyNo = (int)Math.Floor(CurrentCapacity * (Assets.TommySheet.Sprites - .1f));
+            int eyesNo;
+
+            if (AngularVelocity > 12f)
+                eyesNo = 2; // sick
+            else if (Velocity.LengthSquared() > 300f)
+                eyesNo = 4; // happy
+            else if (Velocity.LengthSquared() < 50f)
+                eyesNo = 0; // bored
+            else
+                eyesNo = 2; // chill
+
+            var rect = Bounding.ToDisplayUnits();
 
             batcher.Matrices.Push(ref mat);
-            batcher.FillRect(Bounding.ToDisplayUnits(), Assets.TommySheet.GetSprite(spriteNumber));
+            batcher.FillRect(rect, Assets.TommySheet.GetSprite(tommyNo));
+            batcher.FillRect(rect, Assets.EyesSheet.GetSprite(eyesNo));
             batcher.Matrices.Pop();
             batcher.Flush();
         }
