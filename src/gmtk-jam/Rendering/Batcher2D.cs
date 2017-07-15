@@ -187,13 +187,18 @@ namespace gmtk_jam.Rendering
 
         public void FillRect(Rectangle rect, Color color)
         {
+            FillRect(rect, color, color, color, color);
+        }
+
+        public void FillRect(Rectangle rect, Color c1, Color c2, Color c3, Color c4)
+        {
             var di = DrawInfo.ForFill(BasicEffect, _blankTexture);
             CheckFlush(di);
 
-            var v1 = AddVertex(new Vector2(rect.Left, rect.Top), color);
-            var v2 = AddVertex(new Vector2(rect.Right, rect.Top), color);
-            var v3 = AddVertex(new Vector2(rect.Right, rect.Bottom), color);
-            var v4 = AddVertex(new Vector2(rect.Left, rect.Bottom), color);
+            var v1 = AddVertex(new Vector2(rect.Left, rect.Top), c1);
+            var v2 = AddVertex(new Vector2(rect.Right, rect.Top), c2);
+            var v3 = AddVertex(new Vector2(rect.Right, rect.Bottom), c3);
+            var v4 = AddVertex(new Vector2(rect.Left, rect.Bottom), c4);
             AddIndex(v1);
             AddIndex(v2);
             AddIndex(v4);
