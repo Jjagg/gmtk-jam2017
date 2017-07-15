@@ -85,7 +85,7 @@ namespace gmtk_jam
 #endif
             _tommy.Update(gameTime);
             var zoomTarget = Math.Min(1f, 3f / (_tommy.Velocity.X < 0.001 ? 1f : _tommy.Velocity.X));
-            var z = MathHelper.Clamp(MathHelper.Lerp(_camera.Zoom, zoomTarget, 0.02f), 0.1f, 1f);
+            var z = MathHelper.Clamp(MathHelper.Lerp(_camera.Zoom, zoomTarget, 0.002f), 0.1f, 1f);
             _camera.ZoomTo(z);
             _camera.MoveTo(_tommy.Position);
             _camera.OffsetScreen(new Vector2(0.3f, 0.2f));
@@ -167,6 +167,11 @@ namespace gmtk_jam
 
             _sb.DrawString(Assets.Font12, "Slightly Rounded Square", new Vector2(10f, 460f), Color.White);
 #if DEBUG
+            _sb.DrawString(Assets.Font12, $"Tommy Speed = {_tommy.Velocity}", new Vector2(10f, 400f), Color.White);
+            _sb.DrawString(Assets.Font12, $"Tommy Size = {_tommy.Size}", new Vector2(10f, 410f), Color.White);
+            _sb.DrawString(Assets.Font12, $"Tommy Target Size = {_tommy.TargetSize}", new Vector2(10f, 420f), Color.White);
+            _sb.DrawString(Assets.Font12, $"Tommy t = {_tommy._sizeT}", new Vector2(10f, 430f), Color.White);
+            _sb.DrawString(Assets.Font12, $"Cap = {_tommy.CurrentCapacity}", new Vector2(10f, 440f), Color.White);
             _sb.DrawString(Assets.Font12, $"Mountain points = {_mountain.PointCount}", new Vector2(10f, 450f), Color.White);
 #endif
 

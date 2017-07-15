@@ -1,6 +1,7 @@
 ﻿using System;
 using FarseerPhysics;
 using FarseerPhysics.Dynamics;
+using FarseerPhysics.Dynamics.Contacts;
 using FarseerPhysics.Factories;
 using gmtk_jam.Interpolation;
 using gmtk_jam.Rendering;
@@ -10,7 +11,7 @@ namespace gmtk_jam
 {
     public class Tommy
     {
-        public const float SizeTStep = 5f;
+        public const float SizeTStep = 4f;
 
         public float Mass = 3f;
         //public float Density = 1;
@@ -40,12 +41,13 @@ namespace gmtk_jam
         public float Oxygen { get; } = 1f; // between 0 and 1
 
         private float RoundingRadius => Size / 4f;
-        private float TargetSize => (1 + CurrentCapacity * MaxCapacity) * 1.5f;
+        public float TargetSize => (1 + CurrentCapacity * MaxCapacity) * 1.5f;
 
         private IInterpolation _sizeInterpolation = CubicInterpolation.EaseOut;
-        private float _sizeT = 1;
+        public float _sizeT = 1;
 
-        public float Size => 1f + 0.02f * _sizeInterpolation.Map(_sizeT);
+        public float MinSize = 1;
+        public float Size => MathHelper.Lerp(MinSize, TargetSize, _sizeInterpolation.Map(_sizeT));
         private float HalfSize => Size / 2f;
 
         private Vector2 SizeVector => new Vector2(Size);
@@ -56,29 +58,57 @@ namespace gmtk_jam
         public Tommy(World world)
         {
             _world = world;
+            _body = new Body(world);
             UpdateBody();
+        }
+
+        private bool OnCollideMountain(Fixture fixtureA, Fixture fixtureB, Contact contact)
+        {
+            if (fixtureB.CollisionCategories == Physics.MountainCategory)
+            {
+                if (_sizeT == 1)
+                {
+
+                }
+                else
+                {
+                    var multiplier = 1 / _sizeT;
+                    if (multiplier > 20)
+                    {
+                        // TODO SUPER MULTIPLIER
+                        multiplier = 20;
+                    }
+                    _body.ApplyLinearImpulse(multiplier * new Vector2(.2f, -1f));
+                }
+            }
+            return true;
         }
 
         private void UpdateBody()
         {
-            _body?.Dispose();
-
-            var oldBody = _body;
             var sm = Size;
             var rm = RoundingRadius;
-            var pos = oldBody?.Position ?? Vector2.Zero;
-            var rot = oldBody?.Rotation ?? 0f;
+            var pos = _body.Position;
+            var rot = _body.Rotation;
+            var v = Velocity;
+            var av = AngularVelocity;
 
-            if (Math.Abs(rm) < 1e-5f)
-                _body = BodyFactory.CreateRectangle(_world, sm, sm, 1, pos, rot, BodyType.Dynamic);
-            else
-                _body = BodyFactory.CreateRoundedRectangle(_world, sm, sm, rm, rm, 10, 1, pos, rot, BodyType.Dynamic);
+            _body.OnCollision -= OnCollideMountain;
+            _body.Dispose();
 
+            _body = Math.Abs(rm) < 1e-5f
+                ? BodyFactory.CreateRectangle(_world, sm, sm, 1, pos, rot, BodyType.Dynamic)
+                : BodyFactory.CreateRoundedRectangle(_world, sm, sm, rm, rm, 10, 1, pos, rot, BodyType.Dynamic);
+
+            _body.LinearVelocity = v;
+            _body.AngularVelocity = av;
             _body.Mass = Mass;
 
-            _body.AngularDamping = 0.1f;
+            _body.LinearDamping = 0.2f;
+            _body.AngularDamping = 0.4f;
             _body.CollidesWith = Category.All;
             _body.CollisionCategories = Physics.TommyCategory;
+            _body.OnCollision += OnCollideMountain;
         }
 
         public void Update(GameTime gameTime)
@@ -92,6 +122,7 @@ namespace gmtk_jam
             {
                 var ds = SizeTStep * (float) gameTime.ElapsedGameTime.TotalSeconds;
                 _sizeT = Math.Min(1, _sizeT + ds);
+                UpdateBody();
             }
         }
 
@@ -101,20 +132,25 @@ namespace gmtk_jam
                 return;
 
             CurrentCapacity = MaxCapacity;
+            _sizeT = 0;
         }
 
         private void BreatheOut(GameTime gameTime)
         {
-            CurrentCapacity = MathHelper.Max(0, CurrentCapacity - .01f);
+            var ts = (float) gameTime.ElapsedGameTime.TotalSeconds;
+            var dc = ts;
+            CurrentCapacity = MathHelper.Max(0, CurrentCapacity - dc);
             var vec = -new Vector2((float) Math.Cos(Rotation), (float) Math.Sin(Rotation));
-            _body.ApplyLinearImpulse(0.1f * vec * (float) gameTime.ElapsedGameTime.TotalSeconds);
+            _body.ApplyLinearImpulse(vec * (float) gameTime.ElapsedGameTime.TotalSeconds);
+
+            UpdateBody();
         }
 
         public void Draw(Batcher2D batcher)
         {
             var rot = Matrix.CreateRotationZ(Rotation);
             var trans = Matrix.CreateTranslation(Position.X, Position.Y, 0f);
-            var scale = Matrix.CreateScale(1f + Progress);
+            var scale = Matrix.CreateScale((1f + Progress) * .58f);
             var mat = scale * rot * trans;
 
             var tommyNo = (int)Math.Floor(CurrentCapacity * (Assets.TommySheet.Sprites - .1f));

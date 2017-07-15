@@ -5,6 +5,8 @@ namespace gmtk_jam
 {
     public class RectangleF
     {
+        private Rectangle boundingRect;
+
         public Vector2 Position { get; }
         public Vector2 Size { get; }
 
@@ -37,11 +39,21 @@ namespace gmtk_jam
             Size = new Vector2(width, height);
         }
 
+        public RectangleF(Rectangle boundingRect)
+        {
+            this.boundingRect = boundingRect;
+        }
+
         [Pure]
         public RectangleF Inflate(float x, float y)
         {
             var halfExtents = new Vector2((Size.X + x) / 2f, (Size.Y + y) / 2f);
             return new RectangleF(Center - halfExtents, 2 * halfExtents);
+        }
+
+        public Rectangle ToRectangle()
+        {
+            return new Rectangle(Position.ToPoint(), Size.ToPoint());
         }
     }
 }

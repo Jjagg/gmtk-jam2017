@@ -12,7 +12,7 @@ namespace gmtk_jam
 {
     public class Mountain
     {
-        public const int LineStep = 15;
+        public const float LineStep = .25f;
 
         private readonly World _world;
         private Body _body;
@@ -25,7 +25,7 @@ namespace gmtk_jam
 
         public float MinDerivative { get; set; } = 0.2f;
         public float MaxDerivative { get; set; } = .8f;
-        public float DerivativeChangeRate { get; set; } = 0.1f;
+        public float DerivativeChangeRate { get; set; } = 0.07f;
         public float DiscontinuityChance { get; set; } = 0.02f;
 
         public int PointCount => _points.Count;
@@ -34,31 +34,31 @@ namespace gmtk_jam
         {
             _world = world;
             _points = new List<Vector2>();
-            _points.Add(new Vector2(-500, 350));
-            _points.Add(new Vector2(-5, 350));
+            _points.Add(ConvertUnits.ToSimUnits(new Vector2(-500, 350)));
+            _points.Add(ConvertUnits.ToSimUnits(new Vector2(-5, 350)));
             _camera = camera;
 
             _rand = new Random();
 
-            FillPoints(500);
+            FillPoints(ConvertUnits.ToSimUnits(500));
             CreateBody();
         }
 
         public void Update()
         {
-            var rect = _camera.BoundingRect;
+            var rect = _camera.BoundingRect.ToRectangleF().ToSimUnits();
             RemovePoints(rect.Left);
             FillPoints(rect.Right);
             CreateBody();
         }
 
-        private void RemovePoints(int until)
+        private void RemovePoints(float until)
         {
             while (_points.Count > 1 && _points[1].X < until)
                 _points.RemoveAt(0);
         }
 
-        private void FillPoints(int to)
+        private void FillPoints(float to)
         {
             while (_points[_points.Count - 1].X < to)
                 AddPoint();
@@ -85,7 +85,7 @@ namespace gmtk_jam
             _body?.Dispose();
 
             // todo two lists for efficiency
-            var vertices = new Vertices(_points.Select(ConvertUnits.ToSimUnits));
+            var vertices = new Vertices(_points);
             _body = BodyFactory.CreateChainShape(_world, vertices);
             _body.Friction = 0.8f;
             _body.Restitution = 0.05f;
@@ -96,7 +96,8 @@ namespace gmtk_jam
 
         public void Draw(Batcher2D batcher)
         {
-            batcher.DrawLineStrip(_points, Color.Black, 4);
+            var ps = _points.Select(ConvertUnits.ToDisplayUnits).ToArray();
+            batcher.DrawLineStrip(ps, Color.Black, 4);
         }
     }
 }

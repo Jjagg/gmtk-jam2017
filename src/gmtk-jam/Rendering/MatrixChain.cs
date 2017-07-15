@@ -22,10 +22,11 @@ namespace gmtk_jam.Rendering
             return absMatrix;
         }
 
-        public void Pop()
+        public Matrix Pop()
         {
             if (_matrices.Count > _minCount)
-                _matrices.Pop();
+                return _matrices.Pop();
+            return Matrix.Identity;
         }
 
         public Matrix Get()

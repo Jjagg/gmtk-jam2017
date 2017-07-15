@@ -6,14 +6,23 @@ namespace gmtk_jam
 {
     public static class Extensions
     {
+        public static RectangleF ToRectangleF(this Rectangle rect)
+        {
+            return new RectangleF(rect.Location.ToVector2(), rect.Size.ToVector2());
+        }
+
+        public static RectangleF ToSimUnits(this RectangleF rect)
+        {
+            return new RectangleF(
+                ConvertUnits.ToSimUnits(rect.Position),
+                ConvertUnits.ToSimUnits(rect.Size));
+        }
+
         public static RectangleF ToDisplayUnits(this RectangleF rect)
         {
-            var center = rect.Center;
-            var halfExtents = new Vector2(rect.Size.X / 2f, rect.Size.Y / 2f);
-            halfExtents = ConvertUnits.ToDisplayUnits(halfExtents);
-            var p = halfExtents;
-            var p2 = (2 * halfExtents);
-            return new RectangleF(center - p, p2);
+            return new RectangleF(
+                ConvertUnits.ToDisplayUnits(rect.Position),
+                ConvertUnits.ToDisplayUnits(rect.Size));
         }
 
         /// <summary>
