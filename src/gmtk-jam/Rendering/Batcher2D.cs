@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using gmtk_jam.Extended;
 using Microsoft.Xna.Framework;
@@ -38,9 +39,9 @@ namespace gmtk_jam.Rendering
                 return new DrawInfo(effect, PrimitiveType.LineList, tex, null, width);
             }
 
-            public static DrawInfo ForFill(Effect effect, Texture2D tex)
+            public static DrawInfo ForFill(Effect effect, Texture2D tex, PrimitiveType pt = PrimitiveType.TriangleList)
             {
-                return new DrawInfo(effect, PrimitiveType.TriangleList, tex, null, -1);
+                return new DrawInfo(effect, pt, tex, null, -1);
             }
 
             public bool Equals(DrawInfo other)
@@ -141,24 +142,22 @@ namespace gmtk_jam.Rendering
             AddIndex(v2);
         }
 
-        public void DrawLineStrip(ICollection<Vector2> points, Color color, int lineWidth = 1)
+        public void DrawLineStrip(IEnumerable<Vector2> points, Color color, int lineWidth = 1)
         {
             var di = DrawInfo.ForLine(BasicEffect, _blankTexture, lineWidth);
             CheckFlush(di);
 
-            if (points.Count < 2)
-                throw new Exception("Need at least two points.");
-
             var enumerator = points.GetEnumerator();
-            enumerator.MoveNext();
-            var v3 = AddVertex(enumerator.Current, color);
+            if (!enumerator.MoveNext())
+                throw new Exception("Need at least 3 vertices for a triangle strip.");
+            var v0 = AddVertex(enumerator.Current, color);
 
             while (enumerator.MoveNext())
             {
-                var v4 = AddVertex(enumerator.Current, color);
-                AddIndex(v3);
-                AddIndex(v4);
-                v3 = v4;
+                var v1 = AddVertex(enumerator.Current, color);
+                AddIndex(v0);
+                AddIndex(v1);
+                v0 = v1;
             }
 
             enumerator.Dispose();
@@ -323,6 +322,63 @@ namespace gmtk_jam.Rendering
 
         #endregion
 
+        #region Low level
+
+        public void FillTriangleStrip(IEnumerable<Vector2> ps, Color color)
+        {
+            FillTriangleStrip(ps.Select(p => new VertexPos2Texture(p, Vector2.Zero)), _blankTexture, color);
+        }
+
+        public void FillTriangleStrip(IEnumerable<VertexPos2Texture> ps, Texture2D texture = null, Color? c = null)
+        {
+            var color = c ?? Color.White;
+            var tex = texture ?? _blankTexture;
+            var di = DrawInfo.ForFill(BasicEffect, tex, PrimitiveType.TriangleStrip);
+            CheckFlush(di);
+
+            var en = ps.GetEnumerator();
+            if (!en.MoveNext())
+                throw new Exception("Need at least 3 vertices for a triangle strip.");
+
+            AddIndex(AddVertex(en.Current.Pos, color, en.Current.Uv));
+            if (!en.MoveNext())
+                throw new Exception("Need at least 3 vertices for a triangle strip.");
+            AddIndex(AddVertex(en.Current.Pos, color, en.Current.Uv));
+
+            while (en.MoveNext())
+                AddIndex(AddVertex(en.Current.Pos, color, en.Current.Uv));
+
+            en.Dispose();
+        }
+
+        public void FillTriangleFan(Vector2 center, IList<Vector2> ps, Color color)
+        {
+            var di = DrawInfo.ForFill(BasicEffect, _blankTexture);
+            CheckFlush(di);
+
+            if (ps.Count < 3)
+                throw new Exception("Triangle fan needs at least 3 points.");
+
+            var centerIndex = AddVertex(center, color);
+            var v0 =  AddVertex(ps[0], color);
+            var v1 = AddVertex(ps[0], color);
+            for (var i = 1; i < ps.Count; i++)
+            {
+                var v2 = AddVertex(ps[i], color);
+                AddIndex(v1);
+                AddIndex(v2);
+                AddIndex(centerIndex);
+                v1 = v2;
+            }
+            AddIndex(v1);
+            AddIndex(v0);
+            AddIndex(centerIndex);
+        }
+
+        #endregion
+
+        #region Flush
+
         public void Flush()
         {
             _gd.BlendState = BlendState.AlphaBlend;
@@ -364,34 +420,6 @@ namespace gmtk_jam.Rendering
             _lastDrawInfo = null;
         }
 
-        #region Low level
-
-        public void FillTriangleFan(Vector2 center, IList<Vector2> ps, Color color)
-        {
-            var di = DrawInfo.ForFill(BasicEffect, _blankTexture);
-            CheckFlush(di);
-
-            if (ps.Count < 3)
-                throw new Exception("Triangle fan needs at least 3 points.");
-
-            var centerIndex = AddVertex(center, color);
-            var v0 =  AddVertex(ps[0], color);
-            var v1 = AddVertex(ps[0], color);
-            for (var i = 1; i < ps.Count; i++)
-            {
-                var v2 = AddVertex(ps[i], color);
-                AddIndex(v1);
-                AddIndex(v2);
-                AddIndex(centerIndex);
-                v1 = v2;
-            }
-            AddIndex(v1);
-            AddIndex(v0);
-            AddIndex(centerIndex);
-        }
-
-        #endregion
-
         private void CheckFlush(DrawInfo di)
         {
             if (_lastDrawInfo != null && !_lastDrawInfo.Equals(di))
@@ -412,6 +440,8 @@ namespace gmtk_jam.Rendering
             _nextToDraw = _nextToDraw + _indicesInBatch;
             _indicesInBatch = 0;
         }
+
+        #endregion
 
         private int AddVertex(Vector2 position, Vector2 uv)
         {
@@ -434,6 +464,18 @@ namespace gmtk_jam.Rendering
             var i = _nextToDraw + _indicesInBatch;
             _ib[i] = index;
             _indicesInBatch++;
+        }
+    }
+
+    public struct VertexPos2Texture
+    {
+        public Vector2 Pos { get; }
+        public Vector2 Uv { get; }
+
+        public VertexPos2Texture(Vector2 pos, Vector2 uv)
+        {
+            Pos = pos;
+            Uv = uv;
         }
     }
 }

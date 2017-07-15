@@ -22,9 +22,9 @@ namespace gmtk_jam
         private const float BackSceneryScreenHeight = 200f;
         private const float MiddleSceneryScreenHeight = 250f;
         private const float FrontSceneryScreenHeight = 300f;
-        private const float BackSceneryMul = .0002f;
-        private const float MiddleSceneryMul = .0004f;
-        private const float FrontSceneryMul = .0008f;
+        private const float BackSceneryMul = .00005f;
+        private const float MiddleSceneryMul = .0001f;
+        private const float FrontSceneryMul = .0002f;
         private ParallaxingBackground _backScenery;
         private ParallaxingBackground _middleScenery;
         private ParallaxingBackground _frontScenery;

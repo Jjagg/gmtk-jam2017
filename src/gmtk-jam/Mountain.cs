@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using FarseerPhysics;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
@@ -104,8 +103,18 @@ namespace gmtk_jam
 
         public void Draw(Batcher2D batcher)
         {
-            var ps = _points.Select(ConvertUnits.ToDisplayUnits).ToArray();
-            batcher.DrawLineStrip(ps, Color.Black, 4);
+            // bottom of the screen + a little margin
+            var b = _camera.BoundingRect.Bottom + 10;
+            var ps = _points.SelectMany(v => VerticalPair(v, b));
+            batcher.FillTriangleStrip(ps, Color.Black);
+        }
+
+        private IEnumerable<Vector2> VerticalPair(Vector2 v, float bottom)
+        {
+            var vd = ConvertUnits.ToDisplayUnits(v);
+            // make sure we start clockwise because of backface culling
+            yield return new Vector2(vd.X, bottom);
+            yield return vd;
         }
     }
 
