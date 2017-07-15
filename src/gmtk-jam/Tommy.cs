@@ -128,7 +128,7 @@ namespace gmtk_jam
 
         private void BreatheIn(GameTime gameTime)
         {
-            if (CurrentCapacity != 0)
+            if (Math.Abs(CurrentCapacity) > 1e-2)
                 return;
 
             CurrentCapacity = MaxCapacity;
@@ -153,7 +153,7 @@ namespace gmtk_jam
             var scale = Matrix.CreateScale((1f + Progress) * .58f);
             var mat = scale * rot * trans;
 
-            var tommyNo = (int)Math.Floor(CurrentCapacity * (Assets.TommySheet.Sprites - .1f));
+            var tommyNo = (int)Math.Floor(CurrentCapacity * 3.99f);
             int eyesNo;
 
             if (AngularVelocity > 12f)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using gmtk_jam.Extended;
 using Microsoft.Xna.Framework;
@@ -142,7 +141,7 @@ namespace gmtk_jam.Rendering
             AddIndex(v2);
         }
 
-        public void DrawLineStrip(IList<Vector2> points, Color color, int lineWidth = 1)
+        public void DrawLineStrip(ICollection<Vector2> points, Color color, int lineWidth = 1)
         {
             var di = DrawInfo.ForLine(BasicEffect, _blankTexture, lineWidth);
             CheckFlush(di);
@@ -150,15 +149,19 @@ namespace gmtk_jam.Rendering
             if (points.Count < 2)
                 throw new Exception("Need at least two points.");
 
-            var v1 = AddVertex(points[0], color);
-            for (var i = 1; i < points.Count; i++)
+            var enumerator = points.GetEnumerator();
+            enumerator.MoveNext();
+            var v3 = AddVertex(enumerator.Current, color);
+
+            while (enumerator.MoveNext())
             {
-                var p = points[i];
-                AddIndex(v1);
-                var v2 = AddVertex(p, color);
-                AddIndex(v2);
-                v1 = v2;
+                var v4 = AddVertex(enumerator.Current, color);
+                AddIndex(v3);
+                AddIndex(v4);
+                v3 = v4;
             }
+
+            enumerator.Dispose();
         }
 
         #endregion

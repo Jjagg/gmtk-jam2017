@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using FarseerPhysics;
 using FarseerPhysics.Common;
 using FarseerPhysics.Dynamics;
@@ -12,12 +14,14 @@ namespace gmtk_jam
 {
     public class Mountain
     {
-        public const float LineStep = .25f;
+        public const float LineStep = 1f;
+
+        public int Seed { get; set; } = 42;
 
         private readonly World _world;
         private Body _body;
 
-        private readonly List<Vector2> _points;
+        private readonly LinkedList<Vector2> _points;
         private readonly Camera _camera;
 
         private readonly Random _rand;
@@ -33,14 +37,16 @@ namespace gmtk_jam
         public Mountain(World world, Camera camera)
         {
             _world = world;
-            _points = new List<Vector2>();
-            _points.Add(ConvertUnits.ToSimUnits(new Vector2(-500, 350)));
-            _points.Add(ConvertUnits.ToSimUnits(new Vector2(-5, 350)));
+
+            _points = new LinkedList<Vector2>();
+            _points.AddLast(ConvertUnits.ToSimUnits(new Vector2(-500, 350)));
+            _points.AddLast(ConvertUnits.ToSimUnits(new Vector2(-5, 350)));
+
             _camera = camera;
 
-            _rand = new Random();
+            _rand = new Random(Seed);
 
-            FillPoints(ConvertUnits.ToSimUnits(500));
+            FillPoints(ConvertUnits.ToSimUnits(camera.BoundingRect.Right));
             CreateBody();
         }
 
@@ -54,13 +60,14 @@ namespace gmtk_jam
 
         private void RemovePoints(float until)
         {
-            while (_points.Count > 1 && _points[1].X < until)
-                _points.RemoveAt(0);
+            Debug.Assert(_points.First.Next != null, "At least two elements");
+            while (_points.Count > 1 && _points.First.Next.Value.X < until)
+                _points.RemoveFirst();
         }
 
         private void FillPoints(float to)
         {
-            while (_points[_points.Count - 1].X < to)
+            while (_points.Last.Value.X < to)
                 AddPoint();
         }
 
@@ -76,8 +83,8 @@ namespace gmtk_jam
                 _derivative = MathHelper.Clamp(_derivative + diff, MinDerivative, MaxDerivative);
             }
 
-            var lastPoint = _points[_points.Count - 1];
-            _points.Add(lastPoint + new Vector2(LineStep, LineStep * _derivative));
+            var lastPoint = _points.Last.Value;
+            _points.AddLast(lastPoint + new Vector2(LineStep, LineStep * _derivative));
         }
 
         private void CreateBody()
@@ -86,6 +93,7 @@ namespace gmtk_jam
 
             // todo two lists for efficiency
             var vertices = new Vertices(_points);
+
             _body = BodyFactory.CreateChainShape(_world, vertices);
             _body.Friction = 0.8f;
             _body.Restitution = 0.05f;
@@ -98,6 +106,21 @@ namespace gmtk_jam
         {
             var ps = _points.Select(ConvertUnits.ToDisplayUnits).ToArray();
             batcher.DrawLineStrip(ps, Color.Black, 4);
+        }
+    }
+
+    internal struct Decoration
+    {
+        public Vector2 Location { get; }
+        public int DecorationType { get; }
+
+        public float X => Location.X;
+        public float Y => Location.Y;
+
+        public Decoration(Vector2 location, int decorationType)
+        {
+            Location = location;
+            DecorationType = decorationType;
         }
     }
 }

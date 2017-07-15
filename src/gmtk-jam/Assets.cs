@@ -29,7 +29,7 @@ namespace gmtk_jam
             BlankTexture = new Texture2D(gd, 1, 1);
             BlankTexture.SetData(new[] {Color.White.PackedValue});
 
-            TommySheet = new SpriteSheet(cm.Load<Texture2D>("tommy"), 1, 4);
+            TommySheet = new SpriteSheet(cm.Load<Texture2D>("tommy"), 1, 5);
             EyesSheet = new SpriteSheet(cm.Load<Texture2D>("eyes"), 1, 5);
         }
     }

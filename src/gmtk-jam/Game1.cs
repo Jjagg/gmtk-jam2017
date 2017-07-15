@@ -44,7 +44,7 @@ namespace gmtk_jam
             _camera.MoveTo(new Vector2(width / 2f, height / 2f));
 
             _tommy = new Tommy(_physicsWorld);
-            _tommy.Position = new Vector2(100f);
+            _tommy.Position = new Vector2(0f);
 
             _mountain = new Mountain(_physicsWorld, _camera);
             var barSize = new Vector2(40f, 100f);
@@ -127,8 +127,8 @@ namespace gmtk_jam
             DrawScenery();
 
             _batcher.CameraMatrix = _camera.Transform;
-            _tommy.Draw(_batcher);
             _mountain.Draw(_batcher);
+            _tommy.Draw(_batcher);
 
             DrawHud();
 
