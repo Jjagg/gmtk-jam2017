@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Assets.cs" />
     <Compile Include="BasicCamera.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Interpolation\CubicInterpolation.cs" />
     <Compile Include="Interpolation\Interpolation.cs" />
     <Compile Include="Interpolation\LinearInterpolation.cs" />

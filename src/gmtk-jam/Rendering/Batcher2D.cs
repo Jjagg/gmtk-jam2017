@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using gmtk_jam.Extended;
 using Microsoft.Xna.Framework;
@@ -238,33 +239,35 @@ namespace gmtk_jam.Rendering
             AddIndex(v1);
         }
 
-        /*
-        public void FillRoundedRect(int width, int height, int xRadius, int yRadius, int segments, Color color)
+        public void FillRoundedRect(Rectangle rectangle, float radius, int segments, Color color)
         {
-            var di = DrawInfo.ForFill(BasicEffect, _blankTexture);
-            CheckFlush(di);
+            if (radius > rectangle.Width / 2f || radius > rectangle.Height / 2f)
+                throw new Exception("Radius too large");
 
-            for (var i = 0; i < 4; i++)
+            if (radius == 0)
             {
-                var en = ps.GetEnumerator();
-                en.MoveNext();
-                var v0 = AddVertex(en.Current, color);
-                var v1 = v0;
-                var vCenter = AddVertex(center, color);
-                while (en.MoveNext())
-                {
-                    var v2 = AddVertex(p, color);
-                    AddIndex(v1);
-                    AddIndex(v2);
-                    AddIndex(vCenter);
-                    v1 = v2;
-                }
-                en.Dispose();
-
-                AddIndex(v1);
-                AddIndex(v0);
-                AddIndex(vCenter);
+                FillRect(rectangle, color);
+                return;
             }
+
+            var outerRect = rectangle;
+            var innerRect = rectangle;
+            innerRect.Inflate(-radius, -radius);
+
+            FillRect(new Rectangle(innerRect.Left, outerRect.Top, innerRect.Width, outerRect.Height), color);
+            FillRect(new Rectangle(outerRect.Left, innerRect.Top, outerRect.Width, innerRect.Height), color);
+            var leftAngle = MathHelper.Pi;
+            var topAngle = 3 * MathHelper.PiOver2;
+            var rightAngle = 0;
+            var botAngle = MathHelper.PiOver2;
+            var tl = new Vector2(innerRect.Left, innerRect.Top);
+            var tr = new Vector2(innerRect.Right, innerRect.Top);
+            var bl = new Vector2(innerRect.Left, innerRect.Bottom);
+            var br = new Vector2(innerRect.Right, innerRect.Bottom);
+            FillCircleSegment(tl, radius, leftAngle, topAngle, color, segments);
+            FillCircleSegment(tr, radius, topAngle, rightAngle, color, segments);
+            FillCircleSegment(br, radius, rightAngle, botAngle, color, segments);
+            FillCircleSegment(bl, radius, botAngle, leftAngle, color, segments);
         }
 
         public void FillRoundedRect(Rectangle rect, Texture2D tex)
@@ -284,41 +287,35 @@ namespace gmtk_jam.Rendering
             AddIndex(v2);
             AddIndex(v3);   
         }
-        */
 
         #endregion
 
+        #region Circle
+
         public void DrawCircle(Vector2 center, float radius, Color color, int sides, int lineWidth = 1)
         {
-            var ps = ExtendedUtil.CreateCircle(center, radius, sides);
+            DrawCircleSegment(center, radius, 0, MathHelper.TwoPi, color, lineWidth);
+        }
+
+        public void DrawCircleSegment(Vector2 center, float radius, float start, float end, Color color, int sides, int lineWidth = 1)
+        {
+            var ps = ExtendedUtil.CreateCircle(center, radius, sides, start, end);
             DrawLines(ps, color, lineWidth);
         }
 
         public void FillCircle(Vector2 center, float radius, Color color, int sides)
         {
-            var di = new DrawInfo(BasicEffect, PrimitiveType.TriangleList, _blankTexture, null, 0);
-            CheckFlush(di);
-
-            var ps = ExtendedUtil.CreateCircle(center, radius, sides);
-
-            var en = ps.GetEnumerator();
-            en.MoveNext();
-            var v0 = AddVertex(en.Current, color);
-            var v1 = v0;
-            var vCenter = AddVertex(center, color);
-            while (en.MoveNext())
-            {
-                var v2 = AddVertex(en.Current, color);
-                AddIndex(v1);
-                AddIndex(v2);
-                AddIndex(vCenter);
-                v1 = v2;
-            }
-            AddIndex(v1);
-            AddIndex(v0);
-            AddIndex(vCenter);
-            en.Dispose();
+            FillCircleSegment(center, radius, 0, MathHelper.TwoPi, color, sides);
         }
+
+        public void FillCircleSegment(Vector2 center, float radius, float start, float end, Color color, int sides)
+        {
+            var circle = ExtendedUtil.CreateCircle(center, radius, sides, start, end);
+            var ps = center.Yield().Concat(circle);
+            FillTriangleFan(ps, color);
+        }
+
+        #endregion
 
         public void Flush()
         {
@@ -355,6 +352,37 @@ namespace gmtk_jam.Rendering
             _verticesSubmitted = 0;
             _lastDrawInfo = null;
         }
+
+        #region Low level
+
+        public void FillTriangleFan(IEnumerable<Vector2> ps, Color color)
+        {
+            var di = DrawInfo.ForFill(BasicEffect, _blankTexture);
+            CheckFlush(di);
+
+            var en = ps.GetEnumerator();
+            en.MoveNext();
+
+            var center = AddVertex(en.Current, color);
+            en.MoveNext();
+
+            var v0 = AddVertex(en.Current, color);
+            var v1 = v0;
+            while (en.MoveNext())
+            {
+                var v2 = AddVertex(en.Current, color);
+                AddIndex(v1);
+                AddIndex(v2);
+                AddIndex(center);
+                v1 = v2;
+            }
+            AddIndex(v1);
+            AddIndex(v0);
+            AddIndex(center);
+            en.Dispose();
+        }
+
+        #endregion
 
         private void CheckFlush(DrawInfo di)
         {
@@ -401,3 +429,4 @@ namespace gmtk_jam.Rendering
         }
     }
 }
+

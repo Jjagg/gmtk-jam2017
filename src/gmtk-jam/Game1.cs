@@ -112,6 +112,8 @@ namespace gmtk_jam
                 _camera.ZoomTo(_camera.Zoom + .01f);
             if (Input.KeyDown(Keys.F))
                 _camera.ZoomTo(_camera.Zoom - .01f);
+            if (Input.KeyPressed(Keys.T))
+                _physicsWorld.Enabled = !_physicsWorld.Enabled;
         }
 
         protected override void Draw(GameTime gameTime)

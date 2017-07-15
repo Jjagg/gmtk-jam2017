@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using FarseerPhysics;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
@@ -36,7 +35,7 @@ namespace gmtk_jam
         public float CurrentCapacity { get; private set; } = 0.1f; // number between 0 and 1
         public float Oxygen { get; } = 1f; // between 0 and 1
 
-        private float RoundingRadius => (CurrentCapacity * MaxCapacity + 0.01f) * 10;
+        private float RoundingRadius => (CurrentCapacity * MaxCapacity + 0.5f) * 10;
         private float Size => (1 + CurrentCapacity * MaxCapacity) * 100f;
         private float HalfSize => Size / 2f;
 
@@ -85,7 +84,7 @@ namespace gmtk_jam
                 _body.ApplyLinearImpulse(vec * 0.1f);
             }
 
-            Rotation += 0.02f;
+            //Rotation += 0.02f;
         }
 
         public void Draw(Batcher2D batcher)
@@ -95,7 +94,7 @@ namespace gmtk_jam
             var mat = rot * trans;
 
             batcher.Matrices.Push(ref mat);
-            batcher.FillRect(Bounding, Color.Red);
+            batcher.FillRoundedRect(Bounding, RoundingRadius, 6, Color.Red);
             batcher.Matrices.Pop();
             batcher.Flush();
         }
