@@ -23,8 +23,8 @@ namespace gmtk_jam
         private readonly Random _rand;
         private float _derivative = .3f;
 
-        public float MinDerivative { get; set; } = 0f;
-        public float MaxDerivative { get; set; } = 1f;
+        public float MinDerivative { get; set; } = 0.2f;
+        public float MaxDerivative { get; set; } = 2f;
         public float DerivativeChangeRate { get; set; } = 0.1f;
         public float DiscontinuityChance { get; set; } = 0.02f;
 
@@ -32,31 +32,33 @@ namespace gmtk_jam
         {
             _world = world;
             _points = new List<Vector2>();
+            _points.Add(new Vector2(-500, 350));
             _points.Add(new Vector2(-5, 350));
             _camera = camera;
 
             _rand = new Random();
 
-            FillPoints();
+            FillPoints(500);
             CreateBody();
         }
 
         public void Update()
         {
-            RemovePoints();
-            FillPoints();
+            var rect = _camera.BoundingRect;
+            RemovePoints(rect.Left);
+            FillPoints(rect.Right);
             CreateBody();
         }
 
-        private void RemovePoints()
+        private void RemovePoints(int until)
         {
-            while (_points.Count > 1 && _points[1].X < _camera.Left)
+            while (_points.Count > 1 && _points[1].X < until)
                 _points.RemoveAt(0);
         }
 
-        private void FillPoints()
+        private void FillPoints(int to)
         {
-            while (_points[_points.Count - 1].X < _camera.Right)
+            while (_points[_points.Count - 1].X < to)
                 AddPoint();
         }
 
@@ -83,6 +85,8 @@ namespace gmtk_jam
             // todo two lists for efficiency
             var vertices = new Vertices(_points.Select(ConvertUnits.ToSimUnits));
             _body = BodyFactory.CreateChainShape(_world, vertices);
+            _body.Friction = 0.4f;
+            _body.Restitution = 0.25f;
             
             _body.CollisionCategories = Physics.MountainCategory;
             _body.CollidesWith = Category.All;

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
- using FarseerPhysics;
- using FarseerPhysics.Dynamics;
- using FarseerPhysics.Factories;
+using FarseerPhysics;
+using FarseerPhysics.Dynamics;
+using FarseerPhysics.Factories;
 using gmtk_jam.Rendering;
 using Microsoft.Xna.Framework;
 
@@ -33,10 +33,10 @@ namespace gmtk_jam
         public float Progress = 1;
 
         public float MaxCapacity => Progress;
-        public float CurrentCapacity { get; private set; } // number between 0 and 1
+        public float CurrentCapacity { get; private set; } = 0.1f; // number between 0 and 1
         public float Oxygen { get; } = 1f; // between 0 and 1
 
-        private float RoundingRadius => CurrentCapacity * MaxCapacity * 10;
+        private float RoundingRadius => (CurrentCapacity * MaxCapacity + 0.01f) * 10;
         private float Size => (1 + CurrentCapacity * MaxCapacity) * 100f;
         private float HalfSize => Size / 2f;
 
@@ -60,11 +60,14 @@ namespace gmtk_jam
             var rm = ConvertUnits.ToSimUnits(RoundingRadius);
             var pos = oldBody?.Position ?? Vector2.Zero;
             var rot = oldBody?.Rotation ?? 0f;
-            // TODO Rounded rectangle does not work
-            //_body = BodyFactory.CreateRoundedRectangle(_world, sm, sm, rm, rm, 10, Density, pos, rot, BodyType.Dynamic);
-            _body = BodyFactory.CreateRectangle(_world, sm, sm, Density, pos, rot, BodyType.Dynamic);
-            _body.AngularDamping = 0.01f;
-            _body.Restitution = 0.4f;
+
+            if (rm == 0f)
+                _body = BodyFactory.CreateRectangle(_world, sm, sm, Density, pos, rot, BodyType.Dynamic);
+            else
+                _body = BodyFactory.CreateRoundedRectangle(_world, sm, sm, rm, rm, 10, Density, pos, rot,
+                    BodyType.Dynamic);
+
+            _body.AngularDamping = 0.03f;
             _body.CollidesWith = Category.All;
             _body.CollisionCategories = Physics.TommyCategory;
         }

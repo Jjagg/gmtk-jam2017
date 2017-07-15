@@ -131,6 +131,7 @@ namespace gmtk_jam
 
         private void DrawHud()
         {
+            _batcher.CameraMatrix = _camera.Projection;
             _oxygenBar.Draw(_batcher);
 
             _sb.Begin();

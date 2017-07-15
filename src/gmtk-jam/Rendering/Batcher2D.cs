@@ -219,11 +219,78 @@ namespace gmtk_jam.Rendering
             AddIndex(v3);   
         }
 
+        public void DrawRoundedRect(Rectangle rect, Color color, int lineWidth = 1)
+        {
+            var di = DrawInfo.ForLine(BasicEffect, _blankTexture, lineWidth);
+            CheckFlush(di);
+
+            var v1 = AddVertex(new Vector2(rect.Left, rect.Top), color);
+            var v2 = AddVertex(new Vector2(rect.Right, rect.Top), color);
+            var v3 = AddVertex(new Vector2(rect.Right, rect.Bottom), color);
+            var v4 = AddVertex(new Vector2(rect.Left, rect.Bottom), color);
+            AddIndex(v1);
+            AddIndex(v2);
+            AddIndex(v2);
+            AddIndex(v3);
+            AddIndex(v3);
+            AddIndex(v4);
+            AddIndex(v4);
+            AddIndex(v1);
+        }
+
+        /*
+        public void FillRoundedRect(int width, int height, int xRadius, int yRadius, int segments, Color color)
+        {
+            var di = DrawInfo.ForFill(BasicEffect, _blankTexture);
+            CheckFlush(di);
+
+            for (var i = 0; i < 4; i++)
+            {
+                var en = ps.GetEnumerator();
+                en.MoveNext();
+                var v0 = AddVertex(en.Current, color);
+                var v1 = v0;
+                var vCenter = AddVertex(center, color);
+                while (en.MoveNext())
+                {
+                    var v2 = AddVertex(p, color);
+                    AddIndex(v1);
+                    AddIndex(v2);
+                    AddIndex(vCenter);
+                    v1 = v2;
+                }
+                en.Dispose();
+
+                AddIndex(v1);
+                AddIndex(v0);
+                AddIndex(vCenter);
+            }
+        }
+
+        public void FillRoundedRect(Rectangle rect, Texture2D tex)
+        {
+            var di = DrawInfo.ForFill(BasicEffect, tex);
+            CheckFlush(di);
+
+            var v1 = AddVertex(new Vector2(rect.Left, rect.Top), Vector2.Zero);
+            var v2 = AddVertex(new Vector2(rect.Right, rect.Top), Vector2.UnitX);
+            var v3 = AddVertex(new Vector2(rect.Right, rect.Bottom), Vector2.One);
+            var v4 = AddVertex(new Vector2(rect.Left, rect.Bottom), Vector2.UnitY);
+
+            AddIndex(v1);
+            AddIndex(v2);
+            AddIndex(v4);
+            AddIndex(v4);
+            AddIndex(v2);
+            AddIndex(v3);   
+        }
+        */
+
         #endregion
 
         public void DrawCircle(Vector2 center, float radius, Color color, int sides, int lineWidth = 1)
         {
-            var ps = Util.CreateCircle(center, radius, sides);
+            var ps = ExtendedUtil.CreateCircle(center, radius, sides);
             DrawLines(ps, color, lineWidth);
         }
 
@@ -232,14 +299,16 @@ namespace gmtk_jam.Rendering
             var di = new DrawInfo(BasicEffect, PrimitiveType.TriangleList, _blankTexture, null, 0);
             CheckFlush(di);
 
-            var ps = Util.CreateCircle(center, radius, sides);
+            var ps = ExtendedUtil.CreateCircle(center, radius, sides);
 
-            var v0 = AddVertex(ps[0], color);
+            var en = ps.GetEnumerator();
+            en.MoveNext();
+            var v0 = AddVertex(en.Current, color);
             var v1 = v0;
             var vCenter = AddVertex(center, color);
-            foreach (var p in ps)
+            while (en.MoveNext())
             {
-                var v2 = AddVertex(p, color);
+                var v2 = AddVertex(en.Current, color);
                 AddIndex(v1);
                 AddIndex(v2);
                 AddIndex(vCenter);
@@ -248,6 +317,7 @@ namespace gmtk_jam.Rendering
             AddIndex(v1);
             AddIndex(v0);
             AddIndex(vCenter);
+            en.Dispose();
         }
 
         public void Flush()

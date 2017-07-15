@@ -50,7 +50,7 @@
     <Compile Include="Interpolation\LinearInterpolation.cs" />
     <Compile Include="Rendering\Batcher2D.cs" />
     <Compile Include="Camera.cs" />
-    <Compile Include="Extended\Util.cs" />
+    <Compile Include="Extended\ExtendedUtil.cs" />
     <Compile Include="FrameRateCounter.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Input.cs" />
@@ -103,6 +103,7 @@
     <Compile Include="Tommy.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Util.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FarseerPhysics.Portable, Version=3.5.0.0, Culture=neutral, processorArchitecture=MSIL">
