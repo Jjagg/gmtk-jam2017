@@ -54,11 +54,7 @@ namespace gmtk_jam
             _camera.MoveTo(new Vector2(width / 2f, height / 2f));
 
             _tommy = new Tommy(_physicsWorld);
-<<<<<<< Updated upstream
-            _tommy.Position = new Vector2(0f);
-=======
             _tommy.Position = ConvertUnits.ToSimUnits(new Vector2(100f));
->>>>>>> Stashed changes
 
             _mountain = new Mountain(_physicsWorld, _camera);
             var barSize = new Vector2(40f, 100f);
