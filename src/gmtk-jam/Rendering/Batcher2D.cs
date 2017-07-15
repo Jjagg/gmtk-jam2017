@@ -327,7 +327,12 @@ namespace gmtk_jam.Rendering
         {
             _gd.BlendState = BlendState.AlphaBlend;
             _gd.DepthStencilState = DepthStencilState.None;
-            _gd.SamplerStates[0] = SamplerState.LinearWrap;
+            _gd.SamplerStates[0] = new SamplerState
+            {
+                AddressU = TextureAddressMode.Wrap,
+                AddressV = TextureAddressMode.Clamp,
+                Filter = TextureFilter.Linear
+            };
 
             // register last batch
             RegisterFlush();
