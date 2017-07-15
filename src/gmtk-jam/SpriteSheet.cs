@@ -8,7 +8,6 @@ namespace gmtk_jam
         public Texture2D Texture { get; }
         public int Rows { get; }
         public int Cols { get; }
-        public double Sprites => Rows * Cols;
 
         public SpriteSheet(Texture2D texture, int cols, int rows)
         {

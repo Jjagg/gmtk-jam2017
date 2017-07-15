@@ -13,8 +13,13 @@ namespace gmtk_jam
         public static SpriteFont Font24 { get; private set; }
         public static Texture2D BlankTexture { get; private set; }
 
+        public static int TommySheetSize = 5;
+        public static int EyesSheetSize = 5;
+        public static int GrassSheetSize = 5;
+
         public static SpriteSheet TommySheet { get; private set; }
         public static SpriteSheet EyesSheet { get; private set; }
+        public static SpriteSheet GrassSheet { get; private set; }
 
         public static Texture2D Scenery1 { get; private set; }
         public static Texture2D Scenery2 { get; private set; }
@@ -37,8 +42,9 @@ namespace gmtk_jam
             BlankTexture = new Texture2D(gd, 1, 1);
             BlankTexture.SetData(new[] {Color.White.PackedValue});
 
-            TommySheet = new SpriteSheet(cm.Load<Texture2D>("tommy"), 1, 5);
-            EyesSheet = new SpriteSheet(cm.Load<Texture2D>("eyes"), 1, 5);
+            TommySheet = new SpriteSheet(cm.Load<Texture2D>("tommy"), 1, TommySheetSize);
+            EyesSheet = new SpriteSheet(cm.Load<Texture2D>("eyes"), 1, EyesSheetSize);
+            GrassSheet = new SpriteSheet(cm.Load<Texture2D>("grass"), 1, GrassSheetSize);
 
             Scenery1 = cm.Load<Texture2D>("scenery1");
             Scenery2 = cm.Load<Texture2D>("scenery2");
