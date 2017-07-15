@@ -16,6 +16,10 @@ namespace gmtk_jam
         public static SpriteSheet TommySheet { get; private set; }
         public static SpriteSheet EyesSheet { get; private set; }
 
+        public static Texture2D Scenery1 { get; private set; }
+        public static Texture2D Scenery2 { get; private set; }
+        public static Texture2D Scenery3 { get; private set; }
+
         public static void Load(ContentManager cm)
         {
             var gd = ((IGraphicsDeviceService) cm.ServiceProvider.GetService(typeof(IGraphicsDeviceService))).GraphicsDevice;
@@ -31,6 +35,10 @@ namespace gmtk_jam
 
             TommySheet = new SpriteSheet(cm.Load<Texture2D>("tommy"), 1, 5);
             EyesSheet = new SpriteSheet(cm.Load<Texture2D>("eyes"), 1, 5);
+
+            Scenery1 = cm.Load<Texture2D>("scenery1");
+            Scenery2 = cm.Load<Texture2D>("scenery2");
+            Scenery3 = cm.Load<Texture2D>("scenery3");
         }
     }
 }

@@ -19,6 +19,16 @@ namespace gmtk_jam
         private Mountain _mountain;
         private HudBar _oxygenBar;
 
+        private const float BackSceneryScreenHeight = 200f;
+        private const float MiddleSceneryScreenHeight = 250f;
+        private const float FrontSceneryScreenHeight = 300f;
+        private const float BackSceneryMul = .0002f;
+        private const float MiddleSceneryMul = .0004f;
+        private const float FrontSceneryMul = .0008f;
+        private ParallaxingBackground _backScenery;
+        private ParallaxingBackground _middleScenery;
+        private ParallaxingBackground _frontScenery;
+
         // Physics
         private World _physicsWorld;
 
@@ -44,7 +54,11 @@ namespace gmtk_jam
             _camera.MoveTo(new Vector2(width / 2f, height / 2f));
 
             _tommy = new Tommy(_physicsWorld);
+<<<<<<< Updated upstream
             _tommy.Position = new Vector2(0f);
+=======
+            _tommy.Position = ConvertUnits.ToSimUnits(new Vector2(100f));
+>>>>>>> Stashed changes
 
             _mountain = new Mountain(_physicsWorld, _camera);
             var barSize = new Vector2(40f, 100f);
@@ -63,10 +77,16 @@ namespace gmtk_jam
             Assets.Load(Content);
 
 #if DEBUG
-#endif
             Components.Add(new FrameRateCounter(this));
+#endif
 
-            GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
+            var w = GraphicsDevice.Viewport.Width;
+            var bh = Assets.Scenery1.Height;
+            var mh = Assets.Scenery2.Height;
+            var fh = Assets.Scenery3.Height;
+            _backScenery = new ParallaxingBackground(_camera, new RectangleF(0, BackSceneryScreenHeight, w, bh), Assets.Scenery1, BackSceneryMul);
+            _middleScenery = new ParallaxingBackground(_camera, new RectangleF(0, MiddleSceneryScreenHeight, w, mh), Assets.Scenery2, MiddleSceneryMul);
+            _frontScenery = new ParallaxingBackground(_camera, new RectangleF(0, FrontSceneryScreenHeight, w, fh), Assets.Scenery3, FrontSceneryMul);
 
             base.LoadContent();
         }
@@ -87,7 +107,7 @@ namespace gmtk_jam
             var zoomTarget = Math.Min(1f, 3f / (_tommy.Velocity.X < 0.001 ? 1f : _tommy.Velocity.X));
             var z = MathHelper.Clamp(MathHelper.Lerp(_camera.Zoom, zoomTarget, 0.002f), 0.1f, 1f);
             _camera.ZoomTo(z);
-            _camera.MoveTo(_tommy.Position);
+            _camera.MoveTo(ConvertUnits.ToDisplayUnits(_tommy.Position));
             _camera.OffsetScreen(new Vector2(0.3f, 0.2f));
             _mountain.Update();
 
@@ -141,6 +161,9 @@ namespace gmtk_jam
         {
             _batcher.CameraMatrix = _camera.Projection;
             DrawSky();
+            _backScenery.Draw(_batcher);
+            _middleScenery.Draw(_batcher);
+            _frontScenery.Draw(_batcher);
         }
 
         private readonly Color[] _skyColors =
@@ -167,6 +190,7 @@ namespace gmtk_jam
 
             _sb.DrawString(Assets.Font12, "Slightly Rounded Square", new Vector2(10f, 460f), Color.White);
 #if DEBUG
+            _sb.DrawString(Assets.Font12, $"Tommy Position = {_tommy.Position}", new Vector2(10f, 390f), Color.White);
             _sb.DrawString(Assets.Font12, $"Tommy Speed = {_tommy.Velocity}", new Vector2(10f, 400f), Color.White);
             _sb.DrawString(Assets.Font12, $"Tommy Size = {_tommy.Size}", new Vector2(10f, 410f), Color.White);
             _sb.DrawString(Assets.Font12, $"Tommy Target Size = {_tommy.TargetSize}", new Vector2(10f, 420f), Color.White);

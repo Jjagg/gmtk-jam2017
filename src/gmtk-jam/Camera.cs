@@ -10,7 +10,7 @@ namespace gmtk_jam
     public abstract class Camera
     {
         private readonly GraphicsDevice _gd;
-        protected Rectangle Viewport => _gd.Viewport.Bounds;
+        public Rectangle Viewport => _gd.Viewport.Bounds;
 
         /// <summary>
         /// The size of the viewport.

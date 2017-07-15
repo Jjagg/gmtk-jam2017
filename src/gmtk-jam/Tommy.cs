@@ -24,8 +24,8 @@ namespace gmtk_jam
 
         public Vector2 Position
         {
-            get => ConvertUnits.ToDisplayUnits(_body.Position);
-            set => _body.Position = ConvertUnits.ToSimUnits(value);
+            get => _body.Position;
+            set => _body.Position = value;
         }
 
         public float Rotation
@@ -141,7 +141,7 @@ namespace gmtk_jam
             var dc = ts;
             CurrentCapacity = MathHelper.Max(0, CurrentCapacity - dc);
             var vec = -new Vector2((float) Math.Cos(Rotation), (float) Math.Sin(Rotation));
-            _body.ApplyLinearImpulse(vec * (float) gameTime.ElapsedGameTime.TotalSeconds);
+            _body.ApplyLinearImpulse(.1f * vec);
 
             UpdateBody();
         }
@@ -149,7 +149,8 @@ namespace gmtk_jam
         public void Draw(Batcher2D batcher)
         {
             var rot = Matrix.CreateRotationZ(Rotation);
-            var trans = Matrix.CreateTranslation(Position.X, Position.Y, 0f);
+            var p = ConvertUnits.ToDisplayUnits(Position);
+            var trans = Matrix.CreateTranslation(p.X, p.Y, 0f);
             var scale = Matrix.CreateScale((1f + Progress) * .58f);
             var mat = scale * rot * trans;
 

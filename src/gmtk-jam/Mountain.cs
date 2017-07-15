@@ -53,7 +53,7 @@ namespace gmtk_jam
         public void Update()
         {
             var rect = _camera.BoundingRect.ToRectangleF().ToSimUnits();
-            RemovePoints(rect.Left);
+            RemovePoints(rect.Left - 10);
             FillPoints(rect.Right);
             CreateBody();
         }
