@@ -30,7 +30,9 @@ namespace gmtk_jam
             _world = world;
             _camera = camera;
             _points = new RollingPoints(seed);
-            _plants = new RollingPlants(_points, seed);
+            _plants = new RollingPlants(seed);
+
+            _points.SpawnEvent += (obj, left, r) => _plants.Update(left, obj);
 
             Update(true);
         }
@@ -38,13 +40,8 @@ namespace gmtk_jam
         public void Update(bool forceBodyUpdate = false)
         {
             var rect = _camera.BoundingRect.ToRectangleF().ToSimUnits();
-            if (_points.Update(rect.Left, rect.Right) || forceBodyUpdate)
-            {
-                _plants.Update(rect.Left, rect.Right);
-
-                Console.WriteLine("Updating body!");
-                CreateBody();
-            }
+            if (!_points.Update(rect.Left, rect.Right) && !forceBodyUpdate) return;
+            CreateBody();
         }
 
         private void CreateBody()
@@ -82,69 +79,66 @@ namespace gmtk_jam
         }
     }
 
-    internal abstract class RollingObjects<T> : IEnumerable<T>
+    internal abstract class RollingObjects<T, TRight> : IEnumerable<T>
     {
-        protected readonly LinkedList<T> Objects;
-        protected readonly float BufferZone;
-        private readonly float _tightBufferZone;
+        public static float BufferZone { get; } = 10f;
+        public static float TightBufferZone { get; } = 2f;
 
-        protected RollingObjects(float bufferZone)
+        private readonly LinkedList<T> _objects;
+
+        protected RollingObjects()
         {
-            Objects = new LinkedList<T>();
-            BufferZone = bufferZone;
-            _tightBufferZone = 2f;
+            _objects = new LinkedList<T>();
         }
 
-        public T Last() => Objects.Last.Value;
-        public int Count => Objects.Count;
+        public T Last() => _objects.Last.Value;
+        public int Count => _objects.Count;
+        protected void Add(T obj) => _objects.AddLast(obj);
 
-        public IEnumerator<T> GetEnumerator() => Objects.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) Objects).GetEnumerator();
+        public IEnumerator<T> GetEnumerator() => _objects.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _objects).GetEnumerator();
 
-        public bool Update(float left, float right)
+        public delegate void SpawnHandler(T obj, float left, TRight right);
+        public event SpawnHandler SpawnEvent;
+
+        public bool Update(float left, TRight right)
         {
-            if (!AddLast(right)) return false;   // side effects!
-            RemoveFirst(left);
+            var lastNode = _objects.Last;
+
+            if (!SpawnRight(right)) return false; // side effects!
+
+            // invoke event for each newly added item
+            while (lastNode?.Next != null)
+            {
+                lastNode = lastNode.Next;
+                SpawnEvent?.Invoke(lastNode.Value, left, right);
+            }
+
+            DespawnLeft(left);
             return true;
         }
 
-        private bool RemoveFirst(float left)
+        private void DespawnLeft(float left)
         {
-            if (Objects.Count == 0)
-                return false;
-            if (GetX(Objects.First.Value) > left - BufferZone)
-                return false;
-
-            while (Objects.Count > 0 && GetX(Objects.First.Value) < left - _tightBufferZone)
-                Objects.RemoveFirst();
-
-            Console.WriteLine($"{GetType().Name}: removed objects: {Count}");
-
-            return true;
-        }
-
-        private bool AddLast(float right)
-        {
-            if (Objects.Count > 0 && GetX(Objects.Last.Value) > right + _tightBufferZone)
-                return false;
+            if (_objects.Count == 0)
+                return;
+            if (GetX(_objects.First.Value) > left - BufferZone)
+                return;
 
             var before = Count;
 
-            while (WantNew(right))
-                Objects.AddLast(Construct());
+            while (_objects.Count > 0 && GetX(_objects.First.Value) < left - TightBufferZone)
+                _objects.RemoveFirst();
 
-            if (Count > before)
-                Console.WriteLine($"{GetType().Name}: new objects: {before}->{Count}");
-
-            return true;
+            if (Count < before)
+                Console.WriteLine($"{GetType().Name}: removed objects: {before}->{Count}");
         }
 
-        protected abstract bool WantNew(float right);
+        protected abstract bool SpawnRight(TRight right);
         protected abstract float GetX(T obj);
-        protected abstract T Construct();
     }
 
-    internal class RollingPoints : RollingObjects<Vector2>
+    internal class RollingPoints : RollingObjects<Vector2, float>
     {
         private const float MinDerivative = .2f;
         private const float MaxDerivative = .5f;
@@ -155,21 +149,32 @@ namespace gmtk_jam
 
         private readonly Random _rand;
 
-        public RollingPoints(int seed) : base(bufferZone: 10)
+        public RollingPoints(int seed) : base()
         {
             _rand = new Random(seed);
-            Objects.AddLast(ConvertUnits.ToSimUnits(new Vector2(-500, 350)));
-            Objects.AddLast(ConvertUnits.ToSimUnits(new Vector2(-5, 350)));
+            Add(ConvertUnits.ToSimUnits(new Vector2(-500, 350)));
+            Add(ConvertUnits.ToSimUnits(new Vector2(-5, 350)));
         }
 
-        protected override bool WantNew(float right)
+        protected override bool SpawnRight(float right)
         {
-            return Objects.Count == 0 || GetX(Objects.Last.Value) < right + BufferZone;
+            if (Count > 0 && GetX(Last()) > right + TightBufferZone)
+                return false;
+
+            var before = Count;
+
+            while (Count == 0 || GetX(Last()) < right + BufferZone)
+                Add(ConstructPoint());
+
+            if (Count > before)
+                Console.WriteLine($"{GetType().Name}: added objects: {before}->{Count}");
+
+            return true;
         }
 
         protected override float GetX(Vector2 point) => point.X;
 
-        protected override Vector2 Construct()
+        private Vector2 ConstructPoint()
         {
             if (_rand.NextDouble() < DiscontinuityChance)
             {
@@ -185,39 +190,31 @@ namespace gmtk_jam
         }
     }
 
-    internal class RollingPlants : RollingObjects<Plant>
+    internal class RollingPlants : RollingObjects<Plant, Vector2>
     {
-        private const double PlantProbability = .5;
+        private const double PlantProbability = .07f;
 
-        private readonly RollingPoints _points;
         private readonly Random _rand;
-        private Vector2 _lastConsideredPoint;
 
-        public RollingPlants(RollingPoints points, int seed) : base(bufferZone: 2)
+        public RollingPlants(int seed) : base()
         {
-            _points = points;
             _rand = new Random(seed);
-            _lastConsideredPoint = Vector2.Zero;
+        }
+
+        protected override bool SpawnRight(Vector2 point)
+        {
+            if (!(_rand.NextDouble() < PlantProbability))
+                return false;
+            Add(ConstructPlant(point));
+            return true;
         }
 
         protected override float GetX(Plant dec) => dec.Position.X;
 
-        protected override bool WantNew(float right)
-        {
-            if (_points.Count == 0)
-                return false;
-
-            var lastLastConsideredPoint = _lastConsideredPoint;
-            _lastConsideredPoint = _points.Last();
-
-            return lastLastConsideredPoint != _points.Last()
-                   && _rand.NextDouble() < PlantProbability;
-        }
-
-        protected override Plant Construct()
+        private Plant ConstructPlant(Vector2 point)
         {
             var plantType = _rand.Next(0, Assets.GrassSheetSize);
-            return new Plant(_points.Last(), plantType);
+            return new Plant(point, plantType);
         }
     }
 
