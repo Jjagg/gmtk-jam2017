@@ -166,6 +166,8 @@ namespace gmtk_jam
             BurstsLeft--;
             var vec = -new Vector2((float) Math.Cos(Rotation), (float) Math.Sin(Rotation));
             _body.ApplyAngularImpulse(dir);
+
+            UpdateBody();
         }
 
         public void Draw(Batcher2D batcher)
