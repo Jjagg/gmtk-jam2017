@@ -23,6 +23,7 @@ namespace gmtk_jam
         private readonly RollingPoints _points;
         private readonly RollingPlants _plants;
         private readonly RollingAdversaries _adversaries;
+        private readonly RollingClouds _clouds;
 
         public int PointCount => _points.Count;
 
@@ -33,6 +34,7 @@ namespace gmtk_jam
             _points = new RollingPoints(seed);
             _plants = new RollingPlants(seed);
             _adversaries = new RollingAdversaries(_world, seed);
+            _clouds = new RollingClouds(_world, seed);
 
             _points.SpawnEvent += (obj, left, r) => _plants.Update(left, obj);
             _points.SpawnEvent += (obj, left, r) => _adversaries.Update(left, obj);
@@ -43,8 +45,9 @@ namespace gmtk_jam
         public void Update(bool forceBodyUpdate = false)
         {
             var rect = _camera.BoundingRect.ToRectangleF().ToSimUnits();
-            if (!_points.Update(rect.Left, rect.Right) && !forceBodyUpdate) return;
-            CreateBody();
+            if (_points.Update(rect.Left, rect.Right) || forceBodyUpdate)
+                CreateBody();
+            _clouds.Update(rect.Left, rect.TopRight);
         }
 
         private void CreateBody()
@@ -67,13 +70,17 @@ namespace gmtk_jam
             // bottom of the screen + a little margin
             var b = _camera.BoundingRect.Bottom + 10;
             var ps = _points.SelectMany(v => VerticalPair(v, b));
-            batcher.FillTriangleStrip(ps, Color.Black);
+            batcher.FillTriangleStrip(ps, new Color(0x15, 0x32, 0x22));
+            batcher.DrawLineStrip(_points.Select(ConvertUnits.ToDisplayUnits), Color.Black, 4);
 
             foreach (var plant in _plants)
                 plant.Draw(batcher);
 
             foreach (var adv in _adversaries)
                 adv.Draw(batcher);
+
+            foreach (var cloud in _clouds)
+                cloud.Draw(batcher);
         }
 
         private IEnumerable<Vector2> VerticalPair(Vector2 v, float bottom)
@@ -172,13 +179,8 @@ namespace gmtk_jam
             if (Count > 0 && GetX(Last()) > right + TightBufferZone)
                 return false;
 
-            var before = Count;
-
             while (Count == 0 || GetX(Last()) < right + BufferZone)
                 Add(ConstructPoint());
-
-            if (Count > before)
-                Console.WriteLine($"{GetType().Name}: added objects: {before}->{Count}");
 
             return true;
         }
@@ -261,6 +263,50 @@ namespace gmtk_jam
         protected override float GetX(Adversary adv) => adv.Position.X;
     }
 
+    internal class RollingClouds : RollingObjects<Cloud, Vector2>
+    {
+        private const float MaxHeight = 5;
+        private const float MinHeight = 0;
+
+        private readonly Random _rand;
+        private readonly World _world;
+
+        public RollingClouds(World world, int seed)
+        {
+            _rand = new Random(seed);
+            _world = world;
+
+            DespawnEvent += (cloud, left, right) => cloud.Dispose();
+        }
+
+        protected override bool SpawnRight(Vector2 rightTop)
+        {
+            if (Count > 0 && GetX(Last()) > rightTop.X + TightBufferZone)
+                return false;
+
+            if (Count > 0 && Math.Abs(GetX(Last()) - rightTop.X) < 6.0 * _rand.NextDouble() + 2.0)
+                return false;
+
+            if (Count > 20)
+                return true; // allow removal!
+
+            Add(ConstructCloud(rightTop));
+
+            return true;
+        }
+
+        protected override float GetX(Cloud cloud) => cloud.Position.X;
+
+        private Cloud ConstructCloud(Vector2 rightTop)
+        {
+            var velocity = (float) (2.0 * _rand.NextDouble() - 1.0);
+            var pos = rightTop;
+            pos.Y += MinHeight + ((float) _rand.NextDouble() * (MaxHeight - MinHeight));
+
+            return new Cloud(_world, pos, velocity, _rand.Next(0, Assets.CloudsSheetSize));
+        }
+    }
+
     internal class Plant
     {
         public const float Height = 100;
@@ -288,7 +334,6 @@ namespace gmtk_jam
 
         private readonly Body _body;
         public Vector2 Position => _body.Position;
-        //public Vector2 Position { get; }
 
         public Adversary(World world, Vector2 position)
         {
@@ -308,10 +353,34 @@ namespace gmtk_jam
             batcher.DrawRect(new RectangleF(pos - new Vector2(d / 2f), new Vector2(d)), Color.IndianRed, lineWidth: 2);
         }
 
-        public void Dispose()
+        public void Dispose() => _body?.Dispose();
+    }
+
+    internal class Cloud : IDisposable
+    {
+        private readonly int _type;
+        public const float Width = 3f;
+        public const float Height = 1.5f;
+
+        private readonly Body _body;
+        public Vector2 Position => _body.Position;
+
+        public Cloud(World world, Vector2 position, float velocity, int type)
         {
-            Console.WriteLine("adversary disposed");
-            _body?.Dispose();
+            _type = type;
+            _body = BodyFactory.CreateRectangle(world, 2, 4, 1, position, bodyType: BodyType.Kinematic);
+            _body.LinearVelocity = Vector2.UnitX * velocity;
+            _body.CollidesWith = Category.None;
         }
+
+        public void Draw(Batcher2D batcher)
+        {
+            var pos = ConvertUnits.ToDisplayUnits(Position);
+            var w = ConvertUnits.ToDisplayUnits(Width);
+            var h = ConvertUnits.ToDisplayUnits(Height);
+            batcher.FillRect(new RectangleF(pos, new Vector2(w, h)), Assets.CloudsSheet.GetSprite(_type));
+        }
+
+        public void Dispose() => _body?.Dispose();
     }
 }

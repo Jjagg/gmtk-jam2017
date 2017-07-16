@@ -1,7 +1,9 @@
 ﻿using System;
+using Microsoft.Win32.SafeHandles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using OpenGL;
 
 namespace gmtk_jam
 {
@@ -16,18 +18,16 @@ namespace gmtk_jam
         public static int TommySheetSize = 5;
         public static int EyesSheetSize = 5;
         public static int GrassSheetSize = 5;
+        public static int CloudsSheetSize = 3;
 
         public static SpriteSheet TommySheet { get; private set; }
         public static SpriteSheet EyesSheet { get; private set; }
         public static SpriteSheet GrassSheet { get; private set; }
+        public static SpriteSheet CloudsSheet { get; private set; }
 
         public static Texture2D Scenery1 { get; private set; }
         public static Texture2D Scenery2 { get; private set; }
         public static Texture2D Scenery3 { get; private set; }
-
-        public static Texture2D Cloud1 { get; private set; }
-        public static Texture2D Cloud2 { get; private set; }
-        public static Texture2D Cloud3 { get; private set; }
 
         public static void Load(ContentManager cm)
         {
@@ -45,14 +45,13 @@ namespace gmtk_jam
             TommySheet = new SpriteSheet(cm.Load<Texture2D>("tommy"), 1, TommySheetSize);
             EyesSheet = new SpriteSheet(cm.Load<Texture2D>("eyes"), 1, EyesSheetSize);
             GrassSheet = new SpriteSheet(cm.Load<Texture2D>("grass"), 1, GrassSheetSize);
+            CloudsSheet = new SpriteSheet(cm.Load<Texture2D>("clouds"), CloudsSheetSize, 1);
 
             Scenery1 = cm.Load<Texture2D>("scenery1");
             Scenery2 = cm.Load<Texture2D>("scenery2");
             Scenery3 = cm.Load<Texture2D>("scenery3");
 
-            Cloud1 = cm.Load<Texture2D>("cloud1");
-            Cloud2 = cm.Load<Texture2D>("cloud2");
-            Cloud3 = cm.Load<Texture2D>("cloud3");
         }
+
     }
 }

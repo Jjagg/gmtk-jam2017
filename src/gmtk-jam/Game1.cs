@@ -69,7 +69,7 @@ namespace gmtk_jam
 
             _tommy = new Tommy(_physicsWorld);
             _tommy.Position = ConvertUnits.ToSimUnits(new Vector2(100f));
-            _tommy.HitObstacle += (sender, args) => _triggerReset = true;
+            //_tommy.HitObstacle += (sender, args) => _triggerReset = true;
 
             _mountain = new Mountain(_physicsWorld, _camera);
             var barSize = new Vector2(40f, 100f);
