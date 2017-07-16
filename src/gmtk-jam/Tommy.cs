@@ -16,7 +16,7 @@ namespace gmtk_jam
         public float Mass = 3f;
 
         private readonly World _world;
-        private Body _body;
+        public Body _body;
 
         public Vector2 Velocity => _body.LinearVelocity;
         public float AngularVelocity => _body.AngularVelocity;
@@ -55,6 +55,7 @@ namespace gmtk_jam
         private Vector2 HalfSizeVector => new Vector2(Size / 2f);
 
         public RectangleF Bounding => new RectangleF(-HalfSizeVector, SizeVector);
+        public float MaxAirTime { get; private set; }
 
         public float AirTime;
 
@@ -143,6 +144,8 @@ namespace gmtk_jam
             }
 
             AirTime += (float) gameTime.ElapsedGameTime.TotalSeconds;
+            if (AirTime > MaxAirTime)
+                MaxAirTime = AirTime;
         }
 
         private void BreatheIn(GameTime gameTime)

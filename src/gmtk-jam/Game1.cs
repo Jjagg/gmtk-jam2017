@@ -13,7 +13,7 @@ namespace gmtk_jam
     public class Game1 : Game
     {
         public const float MinZoom = 0.1f;
-        public const float MaxZoom = .6f;
+        public const float MaxZoom = .5f;
 
         private static float Volume;
         public static bool Muted
@@ -27,6 +27,8 @@ namespace gmtk_jam
             }
         }
 
+        public int Score => (int) (ConvertUnits.ToSimUnits(_highestCameraX) + 30 * _tommy.MaxAirTime);
+
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _sb;
         private Batcher2D _batcher;
@@ -35,7 +37,7 @@ namespace gmtk_jam
         private float _highestCameraX;
         private Tommy _tommy;
         private Mountain _mountain;
-        private HudBar _oxygenBar;
+        //private HudBar _oxygenBar;
 
         private const float BackSceneryScreenHeight = 200f;
         private const float MiddleSceneryScreenHeight = 250f;
@@ -85,10 +87,11 @@ namespace gmtk_jam
             //_tommy.HitObstacle += (sender, args) => _triggerReset = true;
 
             _mountain = new Mountain(_physicsWorld, _camera);
-            var barSize = new Vector2(40f, 100f);
-            var oxygenBarPos = new Vector2(width - barSize.X * 2f, barSize.X);
-            _oxygenBar = new HudBar(oxygenBarPos, barSize);
-            _oxygenBar.FillColor = Color.Lime;
+
+            //var barSize = new Vector2(40f, 100f);
+            //var oxygenBarPos = new Vector2(width - barSize.X * 2f, barSize.X);
+            //_oxygenBar = new HudBar(oxygenBarPos, barSize);
+            //_oxygenBar.FillColor = Color.Lime;
 
             _highestCameraX = 0;
             _triggerReset = false;
@@ -237,11 +240,14 @@ namespace gmtk_jam
         private void DrawHud()
         {
             _batcher.CameraMatrix = _camera.Projection;
-            _oxygenBar.Draw(_batcher);
+            //_oxygenBar.Draw(_batcher);
 
             _sb.Begin();
 
-            _sb.DrawString(Assets.Font12, "Slightly Rounded Square", new Vector2(10f, 460f), Color.White);
+            _sb.DrawString(Assets.Font24, $"Score: {Score}", new Vector2(602f, 22f), Color.Black);
+            _sb.DrawString(Assets.Font24, $"Score: {Score}", new Vector2(600f, 20f), Color.White);
+
+            _sb.DrawString(Assets.Font16, "Slightly Rounded Square", new Vector2(10f, 460f), Color.White);
 #if DEBUG
             _sb.DrawString(Assets.Font12, $"Tommy Position = {_tommy.Position}", new Vector2(10f, 390f), Color.White);
             _sb.DrawString(Assets.Font12, $"Tommy Speed = {_tommy.Velocity}", new Vector2(10f, 400f), Color.White);
