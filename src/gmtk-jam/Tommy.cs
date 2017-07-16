@@ -90,10 +90,12 @@ namespace gmtk_jam
             }
             else if (fixtureB.CollisionCategories == Physics.ObstaclesCategory)
             {
-
+                HitObstacle?.Invoke(this, EventArgs.Empty);
             }
             return true;
         }
+
+        public event EventHandler<EventArgs> HitObstacle;
 
         private void UpdateBody()
         {

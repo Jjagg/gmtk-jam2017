@@ -36,7 +36,8 @@ namespace gmtk_jam
 
         // Physics
         private World _physicsWorld;
-        private Body _leftBlocker;
+
+        private bool _triggerReset;
 
         public Game1()
         {
@@ -68,6 +69,7 @@ namespace gmtk_jam
 
             _tommy = new Tommy(_physicsWorld);
             _tommy.Position = ConvertUnits.ToSimUnits(new Vector2(100f));
+            _tommy.HitObstacle += (sender, args) => _triggerReset = true;
 
             _mountain = new Mountain(_physicsWorld, _camera);
             var barSize = new Vector2(40f, 100f);
@@ -76,6 +78,7 @@ namespace gmtk_jam
             _oxygenBar.FillColor = Color.Lime;
 
             _highestCameraX = 0;
+            _triggerReset = false;
         }
 
         protected override void LoadContent()
@@ -109,6 +112,9 @@ namespace gmtk_jam
             if (Input.KeyDown(Keys.Escape))
                 Exit();
 
+            if (Input.KeyPressed(Keys.R))
+                _triggerReset = true;
+
 #if DEBUG
             HandleCameraInput();
 #endif
@@ -123,7 +129,7 @@ namespace gmtk_jam
 
             _physicsWorld.Step((float) gameTime.ElapsedGameTime.TotalSeconds);
 
-            if (Input.KeyPressed(Keys.R))
+            if (_triggerReset)
                 Reset();
 
             base.Update(gameTime);
