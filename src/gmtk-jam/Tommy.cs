@@ -46,7 +46,7 @@ namespace gmtk_jam
         public float _sizeT = 0; // breathe in = -1->0, breathe out = 1->0
 
         public float MinSize = 1.5f;
-        public float MaxSize => 2f * Progress;
+        public float MaxSize => 1.9f * Progress;
         public float RealSize => MinSize + (MaxSize - MinSize) * CurrentCapacity;
         public float LastRecordedSize = 1.5f;
 
@@ -79,13 +79,9 @@ namespace gmtk_jam
                 }
                 else // breathe in
                 {
-                    var multiplier = 1 / (1+_sizeT);
-                    if (multiplier > 20)
-                    {
-                        // TODO SUPER MULTIPLIER
-                        multiplier = 20;
-                    }
-                    _body.ApplyLinearImpulse(.3f * multiplier * new Vector2(.2f, -1f));
+                    // TODO SUPER MULTIPLIER
+                    var multiplier = Math.Min(3f + 2f / (1+_sizeT), 15);
+                    _body.ApplyLinearImpulse(multiplier * new Vector2(.2f, -1f));
                 }
             }
             else if (fixtureB.CollisionCategories == Physics.ObstaclesCategory)
