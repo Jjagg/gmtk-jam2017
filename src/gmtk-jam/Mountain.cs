@@ -256,7 +256,7 @@ namespace gmtk_jam
 
         private Adversary ConstructAdversary(Vector2 point)
         {
-            var adv = new Adversary(_world, point);
+            var adv = new Adversary(_world, point, _rand.Next(0, 2));
             return adv;
         }
 
@@ -330,14 +330,15 @@ namespace gmtk_jam
 
     internal class Adversary
     {
-        public const float Size = 2f;
+        public const float Size = 3f;
 
         private readonly Body _body;
         public Vector2 Position => _body.Position;
+        private readonly int _type;
 
-        public Adversary(World world, Vector2 position)
+        public Adversary(World world, Vector2 position, int type)
         {
-            //Position = position;
+            _type = type;
             var p = position - 0.5f * Size * Vector2.UnitY;
             _body = BodyFactory.CreateRectangle(world, Size, Size, 1.0f, p, rotation: 0f, bodyType: BodyType.Static);
             _body.Friction = 0.5f;
@@ -349,8 +350,10 @@ namespace gmtk_jam
         public void Draw(Batcher2D batcher)
         {
             var pos = ConvertUnits.ToDisplayUnits(Position);
-            var d = ConvertUnits.ToDisplayUnits(Size);
-            batcher.DrawRect(new RectangleF(pos - new Vector2(d / 2f), new Vector2(d)), Color.IndianRed, lineWidth: 2);
+            var d = ConvertUnits.ToDisplayUnits(Size) * 1.5f;
+            var sprite = Assets.ObstacleSheet.GetSprite(_type);
+
+            batcher.FillRect(new RectangleF(pos - new Vector2(d / 2f, d / 2f - d / 10f), new Vector2(d)), sprite);
         }
 
         public void Dispose() => _body?.Dispose();

@@ -180,7 +180,11 @@ namespace gmtk_jam
         {
             if (BurstsLeft < 1)
                 return;
+
+            LastRecordedSize = RealSize;
             BurstsLeft--;
+            _sizeT = 1;
+
             var vec = -new Vector2((float) Math.Cos(Rotation), (float) Math.Sin(Rotation));
             _body.ApplyAngularImpulse(dir);
 

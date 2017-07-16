@@ -27,6 +27,7 @@ namespace gmtk_jam
         public static SpriteSheet Eyes2Sheet { get; private set; }
         public static SpriteSheet GrassSheet { get; private set; }
         public static SpriteSheet CloudsSheet { get; private set; }
+        public static SpriteSheet ObstacleSheet { get; private set; }
 
         public static Texture2D Scenery1 { get; private set; }
         public static Texture2D Scenery2 { get; private set; }
@@ -55,6 +56,7 @@ namespace gmtk_jam
             Eyes2Sheet = new SpriteSheet(cm.Load<Texture2D>("eyes2"), 1, 2);
             GrassSheet = new SpriteSheet(cm.Load<Texture2D>("grass"), 1, GrassSheetSize);
             CloudsSheet = new SpriteSheet(cm.Load<Texture2D>("clouds"), CloudsSheetSize, 1);
+            ObstacleSheet = new SpriteSheet(cm.Load<Texture2D>("obstacles"), 1, 2);
 
             Scenery1 = cm.Load<Texture2D>("scenery1");
             Scenery2 = cm.Load<Texture2D>("scenery2");
