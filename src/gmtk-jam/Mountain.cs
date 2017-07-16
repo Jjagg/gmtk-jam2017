@@ -67,6 +67,9 @@ namespace gmtk_jam
 
         public void Draw(Batcher2D batcher)
         {
+            foreach (var cloud in _clouds)
+                cloud.Draw(batcher);
+
             // bottom of the screen + a little margin
             var b = _camera.BoundingRect.Bottom + 10;
             var ps = _points.SelectMany(v => VerticalPair(v, b));
@@ -78,9 +81,6 @@ namespace gmtk_jam
 
             foreach (var adv in _adversaries)
                 adv.Draw(batcher);
-
-            foreach (var cloud in _clouds)
-                cloud.Draw(batcher);
         }
 
         private IEnumerable<Vector2> VerticalPair(Vector2 v, float bottom)
@@ -299,7 +299,7 @@ namespace gmtk_jam
 
         private Cloud ConstructCloud(Vector2 rightTop)
         {
-            var velocity = (float) (2.0 * _rand.NextDouble() - 1.0);
+            var velocity = (float) (1.5 * _rand.NextDouble() - 2f);
             var pos = rightTop;
             pos.Y += MinHeight + ((float) _rand.NextDouble() * (MaxHeight - MinHeight));
 
