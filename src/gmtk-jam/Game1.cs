@@ -109,6 +109,9 @@ namespace gmtk_jam
             _tommy.Update(gameTime);
 
             UpdateCamera();
+            var cb = _camera.BoundingRect.ToRectangleF().ToSimUnits();
+            if (_tommy.Position.X < cb.Left - _tommy.Size)
+                _tommy.Position = new Vector2(cb.Left, _tommy.Position.Y);
 
             _mountain.Update();
 
