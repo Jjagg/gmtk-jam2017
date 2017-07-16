@@ -6,6 +6,7 @@ using FarseerPhysics.Factories;
 using gmtk_jam.Interpolation;
 using gmtk_jam.Rendering;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace gmtk_jam
@@ -184,23 +185,25 @@ namespace gmtk_jam
             var scale = Matrix.CreateScale(Size * 1.5f);
             var mat = scale * rot * trans;
 
-            var tommyNo = (int)Math.Floor(CurrentCapacity * 3.99f);
-            int eyesNo;
+            Sprite tommyTex = Assets.TommySheet.GetSprite((int) Math.Floor(CurrentCapacity * 3.99f));
+            Sprite eyesTex;
 
-            if (AngularVelocity > 12f)
-                eyesNo = 2; // sick
-            else if (Velocity.LengthSquared() > 300f)
-                eyesNo = 4; // happy
+            if (_sizeT < 1)
+                eyesTex = Assets.Eyes2Sheet.GetSprite(0);
+            else if (AngularVelocity > 12f)
+                eyesTex = Assets.EyesSheet.GetSprite(2); // sick
+            else if (Velocity.LengthSquared() > 280f)
+                eyesTex = Assets.EyesSheet.GetSprite(4); // happy
             else if (Velocity.LengthSquared() < 50f)
-                eyesNo = 0; // bored
+                eyesTex = Assets.EyesSheet.GetSprite(0); // bored
             else
-                eyesNo = 2; // chill
+                eyesTex = Assets.EyesSheet.GetSprite(2); // chill
 
             var rect = Bounding.ToDisplayUnits();
 
             batcher.Matrices.Push(ref mat);
-            batcher.FillRect(rect, Assets.TommySheet.GetSprite(tommyNo));
-            batcher.FillRect(rect, Assets.EyesSheet.GetSprite(eyesNo));
+            batcher.FillRect(rect, tommyTex);
+            batcher.FillRect(rect, eyesTex);
             batcher.Matrices.Pop();
             batcher.Flush();
         }

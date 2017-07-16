@@ -10,7 +10,7 @@ packages/
 
 #rider
 .idea
-.DotSettings
+*.DotSettings
 
 #VS
 *.user
