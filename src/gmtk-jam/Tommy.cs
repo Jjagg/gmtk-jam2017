@@ -14,7 +14,6 @@ namespace gmtk_jam
         public const float SizeTStep = 4f;
 
         public float Mass = 3f;
-        //public float Density = 1;
 
         private readonly World _world;
         private Body _body;
@@ -34,27 +33,26 @@ namespace gmtk_jam
             set => _body.Rotation = value;
         }
 
-        public float Progress = 1;
+        public float Progress = 1; // how much have we progressed -> is translated to growth
 
-        public int BurstsLeft;
+        public int BurstsLeft = 0;
         public int MaxBursts = 1;
 
-        public float MaxCapacity => Progress;
         public float CurrentCapacity => BurstsLeft / (float) MaxBursts; // number between 0 and 1
-        public float Oxygen { get; } = 1f; // between 0 and 1
 
+        private readonly IInterpolation _sizeInterpolation = CubicInterpolation.EaseOut;
+        public float _sizeT = 0; // breathe in = -1->0, breathe out = 1->0
+
+        public float MinSize = 1.5f;
+        public float MaxSize => 2f * Progress;
+        public float RealSize => MinSize + (MaxSize - MinSize) * CurrentCapacity;
+        public float LastRecordedSize = 1.5f;
+
+        public float Size => MathHelper.Lerp(LastRecordedSize, RealSize, _sizeInterpolation.Map(1-Math.Abs(_sizeT)));
         private float RoundingRadius => Size / 4f;
-        public float TargetSize => (1 + CurrentCapacity * MaxCapacity *.5f);
-
-        private IInterpolation _sizeInterpolation = CubicInterpolation.EaseOut;
-        public float _sizeT = 1;
-
-        public float MinSize = 1;
-        public float Size => MathHelper.Lerp(MinSize, TargetSize, _sizeInterpolation.Map(_sizeT));
-        private float HalfSize => Size / 2f;
 
         private Vector2 SizeVector => new Vector2(Size);
-        private Vector2 HalfSizeVector => new Vector2(HalfSize);
+        private Vector2 HalfSizeVector => new Vector2(Size / 2f);
 
         public RectangleF Bounding => new RectangleF(-HalfSizeVector, SizeVector);
 
@@ -72,13 +70,13 @@ namespace gmtk_jam
             AirTime = 0;
             if (fixtureB.CollisionCategories == Physics.MountainCategory)
             {
-                if (_sizeT == 1)
+                if (_sizeT >= 0) // breathe out
                 {
 
                 }
-                else
+                else // breathe in
                 {
-                    var multiplier = 1 / _sizeT;
+                    var multiplier = 1 / (1+_sizeT);
                     if (multiplier > 20)
                     {
                         // TODO SUPER MULTIPLIER
@@ -134,10 +132,13 @@ namespace gmtk_jam
             else if (Input.IsPressed(Input.Action.BreatheUp))
                 BreatheTurn(gameTime, 1);
 
-            if (_sizeT < 1)
+            if (Math.Abs(_sizeT) > 1e-5)
             {
                 var ds = SizeTStep * (float) gameTime.ElapsedGameTime.TotalSeconds;
-                _sizeT = Math.Min(1, _sizeT + ds);
+                if (_sizeT < 0)
+                    _sizeT = Math.Min(0, _sizeT + ds);
+                else
+                    _sizeT = Math.Max(0, _sizeT - ds);
                 UpdateBody();
             }
 
@@ -149,8 +150,9 @@ namespace gmtk_jam
             if (BurstsLeft > 0)
                 return;
 
+            LastRecordedSize = RealSize;
             BurstsLeft = MaxBursts;
-            _sizeT = 0;
+            _sizeT = -1;
 
             Assets.BreatheInSfx.Play();
         }
@@ -159,7 +161,11 @@ namespace gmtk_jam
         {
             if (BurstsLeft < 1)
                 return;
+
+            LastRecordedSize = RealSize;
             BurstsLeft--;
+            _sizeT = 1;
+
             var vec = -new Vector2((float) Math.Cos(Rotation), (float) Math.Sin(Rotation));
             _body.ApplyLinearImpulse(8f * vec);
 
@@ -184,14 +190,16 @@ namespace gmtk_jam
             var rot = Matrix.CreateRotationZ(Rotation);
             var p = ConvertUnits.ToDisplayUnits(Position);
             var trans = Matrix.CreateTranslation(p.X, p.Y, 0f);
-            var scale = Matrix.CreateScale(Size * 1.5f);
+            var scale = Matrix.CreateScale(Size);
             var mat = scale * rot * trans;
 
-            Sprite tommyTex = Assets.TommySheet.GetSprite((int) Math.Floor(CurrentCapacity * 3.99f));
+            Sprite tommyTex = Assets.TommySheet.GetSprite((int) Math.Floor(Math.Abs(_sizeT) * 3.99f));
             Sprite eyesTex;
 
-            if (_sizeT < 1)
-                eyesTex = Assets.Eyes2Sheet.GetSprite(0);
+            if (_sizeT < -1e-3)
+                eyesTex = Assets.Eyes2Sheet.GetSprite(0); // breathe in
+            else if (_sizeT > 1e-3)
+                eyesTex = Assets.Eyes2Sheet.GetSprite(1); // breathe out
             else if (AngularVelocity > 12f)
                 eyesTex = Assets.EyesSheet.GetSprite(2); // sick
             else if (Velocity.LengthSquared() > 280f)
