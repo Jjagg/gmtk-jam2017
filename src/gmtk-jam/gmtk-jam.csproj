@@ -51,6 +51,7 @@
     <Compile Include="Interpolation\Interpolation.cs" />
     <Compile Include="Interpolation\LinearInterpolation.cs" />
     <Compile Include="ParallaxingBackground.cs" />
+    <Compile Include="Popup.cs" />
     <Compile Include="RectangleF.cs" />
     <Compile Include="Rendering\Batcher2D.cs" />
     <Compile Include="Camera.cs" />

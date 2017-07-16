@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using FarseerPhysics;
 using FarseerPhysics.Dynamics;
 using gmtk_jam.Rendering;
@@ -27,7 +28,8 @@ namespace gmtk_jam
             }
         }
 
-        public int Score => (int) (ConvertUnits.ToSimUnits(_highestCameraX) + 30 * _tommy.MaxAirTime);
+        public int Score => Math.Max((int) (ConvertUnits.ToSimUnits(_highestCameraX) + 30 * _tommy.MaxAirTime - 100 * _distinctObstaclesHit), 0);
+        public List<Popup> _popups;
 
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _sb;
@@ -35,7 +37,11 @@ namespace gmtk_jam
 
         private BasicCamera _camera;
         private float _highestCameraX;
+
         private Tommy _tommy;
+        private int _distinctObstaclesHit;
+        private Body _lastObstacleHit;
+
         private Mountain _mountain;
         //private HudBar _oxygenBar;
 
@@ -84,7 +90,8 @@ namespace gmtk_jam
 
             _tommy = new Tommy(_physicsWorld);
             _tommy.Position = ConvertUnits.ToSimUnits(new Vector2(100f));
-            //_tommy.HitObstacle += (sender, args) => _triggerReset = true;
+            _tommy.HitObstacle += OnHitObstacle;
+            _distinctObstaclesHit = 0;
 
             _mountain = new Mountain(_physicsWorld, _camera);
 
@@ -93,8 +100,23 @@ namespace gmtk_jam
             //_oxygenBar = new HudBar(oxygenBarPos, barSize);
             //_oxygenBar.FillColor = Color.Lime;
 
+            _popups = new List<Popup>();
+
             _highestCameraX = 0;
             _triggerReset = false;
+        }
+
+        private void OnHitObstacle(object sender, HitObstacleEventArgs args)
+        {
+            var body = args.Body;
+            if (body != _lastObstacleHit)
+            {
+                _lastObstacleHit = body;
+                _distinctObstaclesHit++;
+
+                var popup = new Popup("-100", Color.Crimson, new Vector2(690f, 40f), 1);
+                _popups.Add(popup);
+            }
         }
 
         protected override void LoadContent()
@@ -152,6 +174,14 @@ namespace gmtk_jam
 
             _physicsWorld.Step((float) gameTime.ElapsedGameTime.TotalSeconds);
 
+            for (var i = _popups.Count - 1; i >= 0; i--)
+            {
+                var p = _popups[i];
+                p.Update(gameTime);
+                if (p.IsDone)
+                    _popups.RemoveAt(i);
+            }
+
             if (_triggerReset)
                 Reset();
 
@@ -206,7 +236,6 @@ namespace gmtk_jam
             _tommy.Draw(_batcher);
 
             DrawHud();
-
             _batcher.Flush();
 
             base.Draw(gameTime);
@@ -261,6 +290,8 @@ namespace gmtk_jam
             _sb.DrawString(Assets.Font12, $"Cap = {_tommy.CurrentCapacity}", new Vector2(10f, 440f), Color.White);
             _sb.DrawString(Assets.Font12, $"Mountain points = {_mountain.PointCount}", new Vector2(10f, 450f), Color.White);
 #endif
+            foreach (var p in _popups)
+                p.Draw(_sb);
 
             _sb.End();
         }

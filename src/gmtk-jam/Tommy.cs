@@ -21,6 +21,8 @@ namespace gmtk_jam
         public Vector2 Velocity => _body.LinearVelocity;
         public float AngularVelocity => _body.AngularVelocity;
 
+        private Body _lastObstacleHit;
+
         public Vector2 Position
         {
             get => _body.Position;
@@ -88,12 +90,12 @@ namespace gmtk_jam
             }
             else if (fixtureB.CollisionCategories == Physics.ObstaclesCategory)
             {
-                HitObstacle?.Invoke(this, EventArgs.Empty);
+                HitObstacle?.Invoke(this, new HitObstacleEventArgs(fixtureB.Body));
             }
             return true;
         }
 
-        public event EventHandler<EventArgs> HitObstacle;
+        public event EventHandler<HitObstacleEventArgs> HitObstacle;
 
         private void UpdateBody()
         {
@@ -226,6 +228,16 @@ namespace gmtk_jam
             batcher.FillRect(rect, eyesTex);
             batcher.Matrices.Pop();
             batcher.Flush();
+        }
+    }
+
+    public class HitObstacleEventArgs
+    {
+        public Body Body { get; }
+
+        public HitObstacleEventArgs(Body body)
+        {
+            Body = body;
         }
     }
 }
