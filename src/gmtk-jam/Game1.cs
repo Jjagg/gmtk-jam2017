@@ -6,6 +6,7 @@ using gmtk_jam.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 
 namespace gmtk_jam
 {
@@ -50,8 +51,8 @@ namespace gmtk_jam
         protected override void Initialize()
         {
             Components.Add(new Input(this));
-
             Reset();
+
             base.Initialize();
         }
 
@@ -87,6 +88,9 @@ namespace gmtk_jam
             _batcher = new Batcher2D(GraphicsDevice);
 
             Assets.Load(Content);
+
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Play(Assets.Bgm);
 
 #if DEBUG
             Components.Add(new FrameRateCounter(this));

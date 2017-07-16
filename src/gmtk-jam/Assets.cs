@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
 using OpenGL;
 
 namespace gmtk_jam
@@ -31,6 +32,8 @@ namespace gmtk_jam
         public static Texture2D Scenery2 { get; private set; }
         public static Texture2D Scenery3 { get; private set; }
 
+        public static Song Bgm { get; private set; }
+
         public static SoundEffect BreatheInSfx { get; private set; }
         public static SoundEffect BreatheOutSfx { get; private set; }
 
@@ -56,6 +59,8 @@ namespace gmtk_jam
             Scenery1 = cm.Load<Texture2D>("scenery1");
             Scenery2 = cm.Load<Texture2D>("scenery2");
             Scenery3 = cm.Load<Texture2D>("scenery3");
+
+            Bgm = cm.Load<Song>("bgm");
 
             BreatheInSfx = cm.Load<SoundEffect>("in");
             BreatheOutSfx = cm.Load<SoundEffect>("out");

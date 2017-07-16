@@ -149,3 +149,9 @@
 /processorParam:Quality=Best
 /build:out.wav
 
+#begin bgm.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Medium
+/build:bgm.mp3
+
