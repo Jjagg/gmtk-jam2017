@@ -85,7 +85,7 @@ namespace gmtk_jam
                         // TODO SUPER MULTIPLIER
                         multiplier = 20;
                     }
-                    _body.ApplyLinearImpulse(multiplier * new Vector2(.2f, -1f));
+                    _body.ApplyLinearImpulse(.3f * multiplier * new Vector2(.2f, -1f));
                 }
             }
             return true;
@@ -133,7 +133,7 @@ namespace gmtk_jam
             {
                 var ds = SizeTStep * (float) gameTime.ElapsedGameTime.TotalSeconds;
                 _sizeT = Math.Min(1, _sizeT + ds);
-                //UpdateBody();
+                UpdateBody();
             }
 
             AirTime += (float) gameTime.ElapsedGameTime.TotalSeconds;
@@ -156,7 +156,7 @@ namespace gmtk_jam
             var vec = -new Vector2((float) Math.Cos(Rotation), (float) Math.Sin(Rotation));
             _body.ApplyLinearImpulse(8f * vec);
 
-            //UpdateBody();
+            UpdateBody();
         }
 
         private void BreatheTurn(GameTime gameTime, int dir)
