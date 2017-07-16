@@ -1,9 +1,9 @@
 ﻿using System;
 using FarseerPhysics;
 using FarseerPhysics.Dynamics;
-using FarseerPhysics.Factories;
 using gmtk_jam.Rendering;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -14,6 +14,18 @@ namespace gmtk_jam
     {
         public const float MinZoom = 0.1f;
         public const float MaxZoom = .6f;
+
+        private static float Volume;
+        public static bool Muted
+        {
+            get => Volume == 0f;
+            set
+            {
+                Volume = value ? 0 : 1;
+                MediaPlayer.Volume = Volume;
+                SoundEffect.MasterVolume = Volume;
+            }
+        }
 
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _sb;
@@ -91,6 +103,7 @@ namespace gmtk_jam
 
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(Assets.Bgm);
+            Muted = true;
 
 #if DEBUG
             Components.Add(new FrameRateCounter(this));
@@ -118,6 +131,9 @@ namespace gmtk_jam
 
             if (Input.KeyPressed(Keys.R))
                 _triggerReset = true;
+
+            if (Input.KeyPressed(Keys.M))
+                Muted = !Muted;
 
 #if DEBUG
             HandleCameraInput();
