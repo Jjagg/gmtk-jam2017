@@ -47,7 +47,7 @@ namespace gmtk_jam
         [Pure]
         public RectangleF Inflate(float x, float y)
         {
-            var halfExtents = new Vector2((Size.X + x) / 2f, (Size.Y + y) / 2f);
+            var halfExtents = new Vector2(Size.X / 2f + x, Size.Y / 2f + y);
             return new RectangleF(Center - halfExtents, 2 * halfExtents);
         }
 

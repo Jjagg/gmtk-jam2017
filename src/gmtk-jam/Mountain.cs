@@ -340,7 +340,7 @@ namespace gmtk_jam
             //Position = position;
             var p = position - 0.5f * Size * Vector2.UnitY;
             _body = BodyFactory.CreateRectangle(world, Size, Size, 1.0f, p, rotation: 0f, bodyType: BodyType.Static);
-            _body.Friction = 0.8f;
+            _body.Friction = 0.5f;
             _body.Restitution = 0.05f;
             _body.CollisionCategories = Physics.ObstaclesCategory;
             _body.CollidesWith = Physics.TommyCategory;

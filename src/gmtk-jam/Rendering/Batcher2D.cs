@@ -258,10 +258,13 @@ namespace gmtk_jam.Rendering
 
             var outerRect = rectangle;
             var innerRect = rectangle;
-            innerRect.Inflate(-radius, -radius);
+            innerRect = innerRect.Inflate(-radius, -radius);
 
-            FillRect(new RectangleF(innerRect.Left, outerRect.Top, innerRect.Width, outerRect.Height), color);
-            FillRect(new RectangleF(outerRect.Left, innerRect.Top, outerRect.Width, innerRect.Height), color);
+            FillRect(innerRect, color);
+            FillRect(new RectangleF(outerRect.Left, innerRect.Top, radius, innerRect.Height), color); // left
+            FillRect(new RectangleF(innerRect.Right, innerRect.Top, radius, innerRect.Height), color); // right
+            FillRect(new RectangleF(innerRect.Left, outerRect.Top, innerRect.Width, radius), color); // top
+            FillRect(new RectangleF(innerRect.Left, innerRect.Bottom, innerRect.Width, radius), color); // top
             var leftAngle = MathHelper.Pi;
             var topAngle = 3 * MathHelper.PiOver2;
             var rightAngle = 0;
@@ -271,7 +274,7 @@ namespace gmtk_jam.Rendering
             var bl = new Vector2(innerRect.Left, innerRect.Bottom);
             var br = new Vector2(innerRect.Right, innerRect.Bottom);
             FillCircleSegment(tl, radius, leftAngle, topAngle, color, segments);
-            FillCircleSegment(tr, radius, topAngle, rightAngle, color, segments);
+            FillCircleSegment(tr, radius, topAngle, MathHelper.TwoPi, color, segments);
             FillCircleSegment(br, radius, rightAngle, botAngle, color, segments);
             FillCircleSegment(bl, radius, botAngle, leftAngle, color, segments);
         }

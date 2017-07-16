@@ -23,7 +23,7 @@ namespace gmtk_jam
             {
                 Volume = value ? 0 : 1;
                 MediaPlayer.Volume = Volume;
-                SoundEffect.MasterVolume = Volume;
+                SoundEffect.MasterVolume = Volume * .1f;
             }
         }
 
@@ -244,8 +244,12 @@ namespace gmtk_jam
 
             _sb.Begin();
 
-            _sb.DrawString(Assets.Font24, $"Score: {Score}", new Vector2(602f, 22f), Color.Black);
-            _sb.DrawString(Assets.Font24, $"Score: {Score}", new Vector2(600f, 20f), Color.White);
+            _batcher.Flush();
+            _batcher.FillRoundedRect(new RectangleF(590, 19, 150, 30), 8, 5, new Color(new Vector4(.2f, .2f, .19f, .6f)));
+            _batcher.Flush();
+            var scoreStr = Score.ToString().PadLeft(6, ' ');
+            _sb.DrawString(Assets.Font24, $"Score: {scoreStr}", new Vector2(602f, 22f), Color.Black);
+            _sb.DrawString(Assets.Font24, $"Score: {scoreStr}", new Vector2(600f, 20f), Color.White);
 
             _sb.DrawString(Assets.Font16, "Slightly Rounded Square", new Vector2(10f, 460f), Color.White);
 #if DEBUG
