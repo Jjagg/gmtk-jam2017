@@ -59,7 +59,7 @@ namespace gmtk_jam
             _body.Restitution = 0.05f;
             
             _body.CollisionCategories = Physics.MountainCategory;
-            _body.CollidesWith = Category.All;
+            _body.CollidesWith = Physics.TommyCategory;
         }
 
         public void Draw(Batcher2D batcher)
@@ -284,33 +284,34 @@ namespace gmtk_jam
 
     internal class Adversary
     {
-        public const float Height = 120;
+        public const float Size = 2f;
 
-        //private readonly Body _body;
-        //public Vector2 Position => _body.Position;
-        public Vector2 Position { get; }
+        private readonly Body _body;
+        public Vector2 Position => _body.Position;
+        //public Vector2 Position { get; }
 
         public Adversary(World world, Vector2 position)
         {
-            Position = position;
-            //_body = BodyFactory.CreateRectangle(world, Height, Height, 1.0f, position, rotation: 0f, bodyType: BodyType.Static);
-            //_body.Friction = 0.8f;
-            //_body.Restitution = 0.05f;
-            //_body.CollisionCategories = Physics.ObstaclesCategory;
-            //_body.CollidesWith = Category.All;
+            //Position = position;
+            var p = position - 0.5f * Size * Vector2.UnitY;
+            _body = BodyFactory.CreateRectangle(world, Size, Size, 1.0f, p, rotation: 0f, bodyType: BodyType.Static);
+            _body.Friction = 0.8f;
+            _body.Restitution = 0.05f;
+            _body.CollisionCategories = Physics.ObstaclesCategory;
+            _body.CollidesWith = Physics.TommyCategory;
         }
 
         public void Draw(Batcher2D batcher)
         {
             var pos = ConvertUnits.ToDisplayUnits(Position);
-            pos.Y -= .75f * Height;
-            batcher.DrawRect(new RectangleF(pos, new Vector2(Height)), Color.IndianRed, lineWidth: 2);
+            var d = ConvertUnits.ToDisplayUnits(Size);
+            batcher.DrawRect(new RectangleF(pos - new Vector2(d / 2f), new Vector2(d)), Color.IndianRed, lineWidth: 2);
         }
 
         public void Dispose()
         {
             Console.WriteLine("adversary disposed");
-            //_body.Dispose();
+            _body?.Dispose();
         }
     }
 }
