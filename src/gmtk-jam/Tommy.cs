@@ -70,9 +70,9 @@ namespace gmtk_jam
 
         private bool OnCollideMountain(Fixture fixtureA, Fixture fixtureB, Contact contact)
         {
+            AirTime = 0;
             if (fixtureB.CollisionCategories == Physics.MountainCategory)
             {
-                AirTime = 0;
                 if (_sizeT == 1)
                 {
 
@@ -87,6 +87,10 @@ namespace gmtk_jam
                     }
                     _body.ApplyLinearImpulse(.3f * multiplier * new Vector2(.2f, -1f));
                 }
+            }
+            else if (fixtureB.CollisionCategories == Physics.ObstaclesCategory)
+            {
+
             }
             return true;
         }

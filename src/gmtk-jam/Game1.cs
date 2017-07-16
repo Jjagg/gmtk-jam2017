@@ -50,6 +50,13 @@ namespace gmtk_jam
         {
             Components.Add(new Input(this));
 
+            Reset();
+            base.Initialize();
+        }
+
+        private void Reset()
+        {
+            _physicsWorld?.Clear();
             _physicsWorld = new World(new Vector2(0, 10f));
             ConvertUnits.SetDisplayUnitToSimUnitRatio(64f);
 
@@ -68,8 +75,7 @@ namespace gmtk_jam
             _oxygenBar = new HudBar(oxygenBarPos, barSize);
             _oxygenBar.FillColor = Color.Lime;
 
-
-            base.Initialize();
+            _highestCameraX = 0;
         }
 
         protected override void LoadContent()
@@ -110,12 +116,15 @@ namespace gmtk_jam
 
             UpdateCamera();
             var cb = _camera.BoundingRect.ToRectangleF().ToSimUnits();
-            if (_tommy.Position.X < cb.Left - _tommy.Size)
-                _tommy.Position = new Vector2(cb.Left, _tommy.Position.Y);
+            if (_tommy.Position.X < cb.Left + _tommy.Size)
+                _tommy.Position = new Vector2(cb.Left + _tommy.Size, _tommy.Position.Y);
 
             _mountain.Update();
 
             _physicsWorld.Step((float) gameTime.ElapsedGameTime.TotalSeconds);
+
+            if (Input.KeyPressed(Keys.R))
+                Reset();
 
             base.Update(gameTime);
         }
@@ -131,10 +140,6 @@ namespace gmtk_jam
                 _highestCameraX = _camera.Position.X;
             else
                 _camera.MoveTo(new Vector2(_highestCameraX, _camera.Position.Y));
-
-            var br = _camera.BoundingRect.ToRectangleF().ToSimUnits();
-            _leftBlocker?.Dispose();
-            _leftBlocker = BodyFactory.CreateEdge(_physicsWorld, new Vector2(br.Left, br.Top), new Vector2(br.Left, br.Bottom));
         }
 
         private void HandleCameraInput()
