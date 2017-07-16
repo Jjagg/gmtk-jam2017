@@ -32,7 +32,7 @@ namespace gmtk_jam
             _camera = camera;
             _points = new RollingPoints(seed);
             _plants = new RollingPlants(seed);
-            _adversaries = new RollingAdversaries(seed);
+            _adversaries = new RollingAdversaries(_world, seed);
 
             _points.SpawnEvent += (obj, left, r) => _plants.Update(left, obj);
             _points.SpawnEvent += (obj, left, r) => _adversaries.Update(left, obj);
@@ -105,6 +105,7 @@ namespace gmtk_jam
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _objects).GetEnumerator();
 
         public delegate void SpawnHandler(T obj, float left, TRight right);
+        public event SpawnHandler DespawnEvent;
         public event SpawnHandler SpawnEvent;
 
         public bool Update(float left, TRight right)
@@ -120,11 +121,11 @@ namespace gmtk_jam
                 SpawnEvent?.Invoke(lastNode.Value, left, right);
             }
 
-            DespawnLeft(left);
+            DespawnLeft(left, right);
             return true;
         }
 
-        private void DespawnLeft(float left)
+        private void DespawnLeft(float left, TRight right)
         {
             if (_objects.Count == 0)
                 return;
@@ -134,7 +135,11 @@ namespace gmtk_jam
             var before = Count;
 
             while (_objects.Count > 0 && GetX(_objects.First.Value) < left - TightBufferZone)
+            {
+                var obj = _objects.First.Value;
                 _objects.RemoveFirst();
+                DespawnEvent?.Invoke(obj, left, right);
+            }
 
             if (Count < before)
                 Console.WriteLine($"{GetType().Name}: removed objects: {before}->{Count}");
@@ -226,12 +231,17 @@ namespace gmtk_jam
 
     internal class RollingAdversaries : RollingObjects<Adversary, Vector2>
     {
-        public static readonly double AdversaryProbability = 0.01;
-        private readonly Random _rand;
+        private const double AdversaryProbability = 0.01;
 
-        public RollingAdversaries(int seed)
+        private readonly Random _rand;
+        private readonly World _world;
+
+        public RollingAdversaries(World world, int seed)
         {
+            _world = world;
             _rand = new Random(seed);
+
+            DespawnEvent += (adversary, left, right) => adversary.Dispose();
         }
 
         protected override bool SpawnRight(Vector2 point)
@@ -244,7 +254,8 @@ namespace gmtk_jam
 
         private Adversary ConstructAdversary(Vector2 point)
         {
-            return new Adversary(point);
+            var adv = new Adversary(_world, point);
+            return adv;
         }
 
         protected override float GetX(Adversary adv) => adv.Position.X;
@@ -253,6 +264,7 @@ namespace gmtk_jam
     internal class Plant
     {
         public const float Height = 100;
+
         public Vector2 Position { get; }
         public int DecorationType { get; }
 
@@ -272,18 +284,33 @@ namespace gmtk_jam
 
     internal class Adversary
     {
+        public const float Height = 120;
+
+        //private readonly Body _body;
+        //public Vector2 Position => _body.Position;
         public Vector2 Position { get; }
-        public Adversary(Vector2 position)
+
+        public Adversary(World world, Vector2 position)
         {
             Position = position;
+            //_body = BodyFactory.CreateRectangle(world, Height, Height, 1.0f, position, rotation: 0f, bodyType: BodyType.Static);
+            //_body.Friction = 0.8f;
+            //_body.Restitution = 0.05f;
+            //_body.CollisionCategories = Physics.ObstaclesCategory;
+            //_body.CollidesWith = Category.All;
         }
 
         public void Draw(Batcher2D batcher)
         {
-            var height = 120;
             var pos = ConvertUnits.ToDisplayUnits(Position);
-            pos.Y -= .75f * height;
-            batcher.DrawRect(new RectangleF(pos, new Vector2(height)), Color.IndianRed, lineWidth: 2);
+            pos.Y -= .75f * Height;
+            batcher.DrawRect(new RectangleF(pos, new Vector2(Height)), Color.IndianRed, lineWidth: 2);
+        }
+
+        public void Dispose()
+        {
+            Console.WriteLine("adversary disposed");
+            //_body.Dispose();
         }
     }
 }
