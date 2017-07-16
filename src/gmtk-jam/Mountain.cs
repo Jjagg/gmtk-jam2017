@@ -22,6 +22,7 @@ namespace gmtk_jam
 
         private readonly RollingPoints _points;
         private readonly RollingPlants _plants;
+        private readonly RollingAdversaries _adversaries;
 
         public int PointCount => _points.Count;
 
@@ -31,8 +32,10 @@ namespace gmtk_jam
             _camera = camera;
             _points = new RollingPoints(seed);
             _plants = new RollingPlants(seed);
+            _adversaries = new RollingAdversaries(seed);
 
             _points.SpawnEvent += (obj, left, r) => _plants.Update(left, obj);
+            _points.SpawnEvent += (obj, left, r) => _adversaries.Update(left, obj);
 
             Update(true);
         }
@@ -68,6 +71,9 @@ namespace gmtk_jam
 
             foreach (var plant in _plants)
                 plant.Draw(batcher);
+
+            foreach (var adv in _adversaries)
+                adv.Draw(batcher);
         }
 
         private IEnumerable<Vector2> VerticalPair(Vector2 v, float bottom)
@@ -218,6 +224,32 @@ namespace gmtk_jam
         }
     }
 
+    internal class RollingAdversaries : RollingObjects<Adversary, Vector2>
+    {
+        public static readonly double AdversaryProbability = 0.01;
+        private readonly Random _rand;
+
+        public RollingAdversaries(int seed)
+        {
+            _rand = new Random(seed);
+        }
+
+        protected override bool SpawnRight(Vector2 point)
+        {
+            if (!(_rand.NextDouble() < AdversaryProbability))
+                return false;
+            Add(ConstructAdversary(point));
+            return true;
+        }
+
+        private Adversary ConstructAdversary(Vector2 point)
+        {
+            return new Adversary(point);
+        }
+
+        protected override float GetX(Adversary adv) => adv.Position.X;
+    }
+
     internal class Plant
     {
         public const float Height = 100;
@@ -235,6 +267,23 @@ namespace gmtk_jam
             var pos = ConvertUnits.ToDisplayUnits(Position);
             pos.Y -= .75f * Height;
             batcher.FillRect(new RectangleF(pos, new Vector2(Height)), Assets.GrassSheet.GetSprite(DecorationType));
+        }
+    }
+
+    internal class Adversary
+    {
+        public Vector2 Position { get; }
+        public Adversary(Vector2 position)
+        {
+            Position = position;
+        }
+
+        public void Draw(Batcher2D batcher)
+        {
+            var height = 120;
+            var pos = ConvertUnits.ToDisplayUnits(Position);
+            pos.Y -= .75f * height;
+            batcher.DrawRect(new RectangleF(pos, new Vector2(height)), Color.IndianRed, lineWidth: 2);
         }
     }
 }
