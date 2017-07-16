@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Win32.SafeHandles;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using OpenGL;
@@ -30,6 +31,9 @@ namespace gmtk_jam
         public static Texture2D Scenery2 { get; private set; }
         public static Texture2D Scenery3 { get; private set; }
 
+        public static SoundEffect BreatheInSfx { get; private set; }
+        public static SoundEffect BreatheOutSfx { get; private set; }
+
         public static void Load(ContentManager cm)
         {
             var gd = ((IGraphicsDeviceService) cm.ServiceProvider.GetService(typeof(IGraphicsDeviceService))).GraphicsDevice;
@@ -53,7 +57,8 @@ namespace gmtk_jam
             Scenery2 = cm.Load<Texture2D>("scenery2");
             Scenery3 = cm.Load<Texture2D>("scenery3");
 
+            BreatheInSfx = cm.Load<SoundEffect>("in");
+            BreatheOutSfx = cm.Load<SoundEffect>("out");
         }
-
     }
 }

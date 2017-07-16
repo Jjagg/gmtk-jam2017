@@ -6,8 +6,6 @@ using FarseerPhysics.Factories;
 using gmtk_jam.Interpolation;
 using gmtk_jam.Rendering;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace gmtk_jam
 {
@@ -153,6 +151,8 @@ namespace gmtk_jam
 
             BurstsLeft = MaxBursts;
             _sizeT = 0;
+
+            Assets.BreatheInSfx.Play();
         }
 
         private void BreatheOut(GameTime gameTime)
@@ -164,6 +164,7 @@ namespace gmtk_jam
             _body.ApplyLinearImpulse(8f * vec);
 
             UpdateBody();
+            Assets.BreatheOutSfx.Play();
         }
 
         private void BreatheTurn(GameTime gameTime, int dir)
@@ -175,6 +176,7 @@ namespace gmtk_jam
             _body.ApplyAngularImpulse(dir);
 
             UpdateBody();
+            Assets.BreatheOutSfx.Play();
         }
 
         public void Draw(Batcher2D batcher)
