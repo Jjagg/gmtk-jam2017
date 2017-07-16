@@ -200,7 +200,10 @@ namespace gmtk_jam
             var scale = Matrix.CreateScale(Size);
             var mat = scale * rot * trans;
 
-            Sprite tommyTex = Assets.TommySheet.GetSprite((int) Math.Floor(Math.Abs(_sizeT) * 3.99f));
+            var tommyIdx = (int)Math.Floor(Math.Max(
+                Math.Abs(_sizeT) * 3.99f,
+                CurrentCapacity * 2.99));
+            Sprite tommyTex = Assets.TommySheet.GetSprite(tommyIdx);
             Sprite eyesTex;
 
             if (_sizeT < -1e-3)
